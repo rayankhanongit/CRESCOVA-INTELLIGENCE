@@ -1,0 +1,74 @@
+@import "tailwindcss";
+
+/* Design tokens. Light = warm paper + ink; dark = deep ink + mint signal. Every colour in the app comes from here. */
+:root {
+  --bg: #f4f3ee;
+  --surface: #ffffff;
+  --surface-2: #faf9f5;
+  --line: #e3e0d6;
+  --fg: #14181f;
+  --muted: #5b6372;
+  --accent: #0e7c66;
+  --accent-fg: #ffffff;
+  --accent-soft: #dff1ec;
+  --danger: #b9322a;
+  --danger-soft: #fbe7e4;
+  --warn: #a8690f;
+  --warn-soft: #fbf0d9;
+  --ok: #1b7f45;
+  --ok-soft: #e0f3e8;
+  --info: #3560c4;
+  --info-soft: #e5ecfa;
+  --shadow: 0 1px 2px rgb(20 24 31 / 0.05), 0 4px 16px rgb(20 24 31 / 0.04);
+}
+:root[data-theme="dark"] {
+  --bg: #0a0d13;
+  --surface: #11151d;
+  --surface-2: #161b25;
+  --line: #242b38;
+  --fg: #e8ebf1;
+  --muted: #8f98aa;
+  --accent: #3ddc97;
+  --accent-fg: #04140d;
+  --accent-soft: #11291f;
+  --danger: #ff7266;
+  --danger-soft: #2d1714;
+  --warn: #f2b84b;
+  --warn-soft: #2b2110;
+  --ok: #3ddc97;
+  --ok-soft: #11291f;
+  --info: #84a8ff;
+  --info-soft: #14203a;
+  --shadow: 0 1px 2px rgb(0 0 0 / 0.4), 0 8px 24px rgb(0 0 0 / 0.25);
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface2: var(--surface-2);
+  --color-line: var(--line);
+  --color-fg: var(--fg);
+  --color-muted: var(--muted);
+  --color-accent: var(--accent);
+  --color-accentfg: var(--accent-fg);
+  --color-accentsoft: var(--accent-soft);
+  --color-danger: var(--danger);
+  --color-dangersoft: var(--danger-soft);
+  --color-warn: var(--warn);
+  --color-warnsoft: var(--warn-soft);
+  --color-ok: var(--ok);
+  --color-oksoft: var(--ok-soft);
+  --color-info: var(--info);
+  --color-infosoft: var(--info-soft);
+  --font-sans: "Segoe UI Variable Text", "Segoe UI", system-ui, -apple-system, Roboto, sans-serif;
+  --font-display: "Segoe UI Variable Display", "Segoe UI", system-ui, sans-serif;
+  --font-mono: ui-monospace, "Cascadia Mono", "SF Mono", Consolas, monospace;
+  --shadow-card: var(--shadow);
+}
+
+html { color-scheme: light; }
+html[data-theme="dark"] { color-scheme: dark; }
+body { background: var(--bg); color: var(--fg); font-family: var(--font-sans); -webkit-font-smoothing: antialiased; }
+.num { font-variant-numeric: tabular-nums; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 6px; }
+@media (prefers-reduced-motion: reduce) { * { animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; } }

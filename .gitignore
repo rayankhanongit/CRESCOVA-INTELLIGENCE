@@ -1,0 +1,12 @@
+node_modules/
+dist/
+.venv/
+__pycache__/
+.pytest_cache/
+*.pyc
+*.db
+*.db-journal
+.env
+.secret_key
+dev-test-account.txt
+.claude/

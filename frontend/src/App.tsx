@@ -1,0 +1,41 @@
+import { useQuery } from "@tanstack/react-query";
+import { Navigate, Route, Routes } from "react-router-dom";
+import Layout from "./components/Layout";
+import { Spinner } from "./components/ui";
+import { api, ApiError } from "./lib/api";
+import type { User } from "./lib/types";
+import AuditDetailPage from "./pages/AuditDetail";
+import AuditsList from "./pages/AuditsList";
+import HistoryPage from "./pages/History";
+import Login from "./pages/Login";
+import OverviewPage from "./pages/Overview";
+import PageDetailPage from "./pages/PageDetail";
+import SettingsPage from "./pages/Settings";
+import WebsiteDetail from "./pages/WebsiteDetail";
+import WebsitesPage from "./pages/Websites";
+
+export default function App() {
+  const me = useQuery({
+    queryKey: ["me"], retry: false, staleTime: Infinity,
+    queryFn: async () => { try { return await api<User>("/auth/me"); } catch (e) { if (e instanceof ApiError && e.status === 401) return null; throw e; } },
+  });
+  if (me.isLoading) return <Spinner label="Loading workspace…" />;
+  if (me.error) return <div className="p-10 text-center text-sm text-danger" role="alert">Can't reach the server. Is the backend running on port 8000?</div>;
+  if (!me.data) return <Login />;
+  const user = me.data;
+  return (
+    <Routes>
+      <Route element={<Layout user={user} />}>
+        <Route index element={<OverviewPage />} />
+        <Route path="websites" element={<WebsitesPage />} />
+        <Route path="websites/:id" element={<WebsiteDetail />} />
+        <Route path="audits" element={<AuditsList />} />
+        <Route path="audits/:id" element={<AuditDetailPage />} />
+        <Route path="pages/:id" element={<PageDetailPage />} />
+        <Route path="history" element={<HistoryPage />} />
+        <Route path="settings" element={<SettingsPage user={user} />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Route>
+    </Routes>
+  );
+}
