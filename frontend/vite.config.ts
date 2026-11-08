@@ -16,7 +16,7 @@ export const CSP = [
 
 export default defineConfig({
   plugins: [react(), tailwindcss()],
-  server: { port: 5173, proxy: { "/api": "http://127.0.0.1:8000" } },
-  preview: { port: 4173, proxy: { "/api": "http://127.0.0.1:8000" }, headers: { "Content-Security-Policy": CSP, "X-Content-Type-Options": "nosniff", "Referrer-Policy": "no-referrer" } },
+  server: { port: 5173, proxy: { "/api": "http://127.0.0.1:8001" } },
+  preview: { port: 4173, proxy: { "/api": "http://127.0.0.1:8001" }, headers: { "Content-Security-Policy": CSP, "X-Content-Type-Options": "nosniff", "Referrer-Policy": "no-referrer" } },
   test: { environment: "jsdom", globals: true, setupFiles: ["./src/test-setup.ts"], css: false },
 });
