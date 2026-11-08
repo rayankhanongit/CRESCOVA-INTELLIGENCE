@@ -1,15 +1,41 @@
 import { useQuery } from "@tanstack/react-query";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Sparkles } from "lucide-react";
+import { useState } from "react";
+import { AiBadge, useAi } from "../components/Ai";
+import { useAction } from "../lib/crm";
 import { Link, useParams } from "react-router-dom";
 import { api } from "../lib/api";
 import { pathOf } from "../lib/format";
 import type { PageDetail } from "../lib/types";
 import { FindingsList } from "../components/Findings";
-import { Badge, Card, ErrorState, PageHeader, ScoreRing, SectionTitle, Spinner, Stat } from "../components/ui";
+import { Badge, Button, Card, ErrorState, PageHeader, ScoreRing, SectionTitle, Spinner, Stat } from "../components/ui";
 
 const Row = ({ k, children }: { k: string; children: React.ReactNode }) => (
   <div className="grid gap-1 border-t border-line py-2.5 text-sm first:border-t-0 sm:grid-cols-[160px_1fr]"><dt className="text-muted">{k}</dt><dd className="min-w-0 break-words">{children}</dd></div>
 );
+
+interface Rewrite { title: string; meta_description: string; reasoning: string; provider: string; model: string }
+
+function PageRewrite({ pageId }: { pageId: number }) {
+  const ai = useAi();
+  const [r, setR] = useState<Rewrite | null>(null);
+  const run = useAction(() => api<Rewrite>(`/pages/${pageId}/ai-rewrite`, { method: "POST" }), { invalidate: ["usage"], done: setR });
+  return (
+    <Card className="mt-4">
+      <SectionTitle aside={<AiBadge />}>Suggested title and description</SectionTitle>
+      <p className="mb-3 text-sm text-muted">A suggestion to review. Copy what you like into your site yourself; nothing is changed or saved here.</p>
+      <Button busy={run.isPending} disabled={!ai.configured} title={ai.configured ? undefined : "AI is not configured"} onClick={() => run.mutate()}><Sparkles className="size-4" />Suggest rewrites</Button>
+      {!ai.configured && !ai.loading && <span className="ml-3 text-xs text-muted">AI is not configured.</span>}
+      {r && (
+        <dl className="mt-4 space-y-2 text-sm">
+          <div><dt className="text-xs font-semibold uppercase tracking-wide text-muted">Title <span className="num normal-case">({r.title.length} chars)</span></dt><dd>{r.title}</dd></div>
+          <div><dt className="text-xs font-semibold uppercase tracking-wide text-muted">Meta description <span className="num normal-case">({r.meta_description.length} chars)</span></dt><dd>{r.meta_description}</dd></div>
+          {r.reasoning && <div><dt className="text-xs font-semibold uppercase tracking-wide text-muted">Why</dt><dd className="text-muted">{r.reasoning}</dd></div>}
+        </dl>
+      )}
+    </Card>
+  );
+}
 
 export default function PageDetailPage() {
   const id = Number(useParams().id);
@@ -61,6 +87,8 @@ export default function PageDetailPage() {
           {missingAlt.slice(0, 6).map((i) => <div key={i.src} className="mt-1 truncate font-mono text-xs text-muted" title={i.src}>{i.src}</div>)}
         </Card>
       </div>
+
+      <PageRewrite pageId={id} />
 
       <div className="mt-6">
         <SectionTitle>Findings for this page <Badge tone="accent">Deterministic</Badge></SectionTitle>

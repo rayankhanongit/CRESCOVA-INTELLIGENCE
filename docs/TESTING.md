@@ -4,10 +4,10 @@
 
 ```powershell
 cd D:\projects\CRESCOVA_INTELLIGENCE\backend
-.\.venv\Scripts\python.exe -m pytest              # 91 tests
+.\.venv\Scripts\python.exe -m pytest              # 109 tests
 
 cd D:\projects\CRESCOVA_INTELLIGENCE\frontend
-npm test                                          # 37 tests (Vitest + Testing Library)
+npm test                                          # 47 tests (Vitest + Testing Library)
 npm run build                                     # tsc --noEmit + production build
 ```
 
@@ -24,6 +24,11 @@ If the system drive is full, set `$env:TEMP="D:\tmp"` first (pytest creates a te
 
 | CRM (backend) | `backend/tests/test_crm.py` | lead CRUD, search/filters (incl. LIKE-wildcard escaping), timeline and last-contacted, validation (`javascript:` websites, bad email, negative budget), qualification rules and the "only suggests" guarantee, conversion (409 on repeat) and client history, onboarding checklist, proposal totals / status flow / lock / expiry / PDF, packages, currency, tasks and overdue logic, dashboard figures, **cross-organisation isolation including forged references**, and the full lead → qualify → convert → proposal → accepted → onboarding workflow |
 | CRM (frontend) | `frontend/src/crm.test.tsx` | money and totals helpers, safe links, generic form modal (validation, null/number conversion, server errors), Kanban columns and persisted moves, search, add-lead flow, proposal editor (package lines, live totals, saved payload, recipient required, locked state, onboarding offer), onboarding progress and toggle, task reminders, dashboard business section |
+
+| AI (backend) | `backend/tests/test_ai.py` | request shape for OpenAI, Groq and Gemini against **mocked HTTP** (URLs, headers, the Gemini key kept out of the URL, JSON mode, token parsing), safe error messages, provider resolution, prompt wrapping of untrusted text, 503 when unconfigured with manual features still working, recommendations limited to supplied findings and review/regenerate behaviour, provider failure (502) and logging, hourly rate limit, page rewrite not stored, keyword suggestions with no metrics and nothing saved until chosen, CSV formula safety, competitor SSRF rejection, analysis, robots block, comparison and content gaps, content generate/revise/save/manage, and isolation across organisations including forged references |
+| AI (frontend) | `frontend/src/ai.test.tsx` | recommendations disabled/enabled by AI status and labelled, review calls, keyword metrics shown only if entered, AI suggestion flow (warning shown, saved as estimates without numbers), competitor facts vs. AI section, content studio generate/edit/revise/save and manual use without AI |
+
+**Not verified:** no request was ever sent to Gemini, OpenAI or Groq. The provider code is exercised only against mocked responses written from the providers' documented formats, so the first real call may still reveal a mismatch.
 
 Backend tests never touch the real network: DNS is stubbed and fetching uses an in-memory fake site (`tests/fakesite.py`). The SSRF tests that need the real fetcher only target addresses that must be refused.
 

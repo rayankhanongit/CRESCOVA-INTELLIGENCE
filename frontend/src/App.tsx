@@ -15,6 +15,9 @@ import Login from "./pages/Login";
 import ProposalEditor from "./pages/ProposalEditor";
 import ProposalsPage from "./pages/Proposals";
 import TasksPage from "./pages/Tasks";
+import CompetitorsPage from "./pages/Competitors";
+import ContentStudio from "./pages/ContentStudio";
+import KeywordsPage from "./pages/Keywords";
 import OverviewPage from "./pages/Overview";
 import PageDetailPage from "./pages/PageDetail";
 import SettingsPage from "./pages/Settings";
@@ -47,6 +50,9 @@ export default function App() {
         <Route path="proposals" element={<ProposalsPage />} />
         <Route path="proposals/:id" element={<ProposalEditor />} />
         <Route path="tasks" element={<TasksPage />} />
+        <Route path="keywords" element={<KeywordsPage />} />
+        <Route path="competitors" element={<CompetitorsPage />} />
+        <Route path="content-studio" element={<ContentStudio />} />
         <Route path="settings" element={<SettingsPage user={user} />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Route>

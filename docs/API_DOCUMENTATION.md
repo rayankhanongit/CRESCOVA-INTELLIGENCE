@@ -32,5 +32,14 @@ Conventions: JSON; auth by `crescova_session` cookie; every non-GET request need
 | `POST /api/proposals/{id}/status` | `{status}`; recorded only, nothing is sent |
 | `GET /api/proposals/{id}/pdf` | PDF download |
 | `GET/POST /api/tasks` · `PATCH/DELETE /api/tasks/{id}` | Tasks; list filters `state` (open, overdue, done), `website_id`, `client_id`; PATCH `{done: true/false}` toggles completion |
+| `GET/POST /api/audits/{id}/recommendations` · `PATCH /api/recommendations/{id}` | AI interpretation of stored findings (POST needs AI configured → else 503); PATCH sets `suggested/accepted/dismissed` |
+| `POST /api/pages/{id}/ai-rewrite` | Suggested title and description, returned only |
+| `GET/POST /api/keywords` · `POST /api/keywords/bulk` · `PATCH/DELETE /api/keywords/{id}` · `GET /api/keywords/export.csv` | Keywords; filter `website_id` |
+| `POST /api/keywords/suggest` | AI keyword ideas (not saved, no metrics) |
+| `GET/POST /api/websites/{id}/competitors` · `DELETE /api/competitors/{id}` | Competitors (URLs are SSRF-validated) |
+| `POST /api/competitors/{id}/analyse` · `POST /api/competitors/{id}/insights` | Start a background crawl (202) / AI interpretation |
+| `GET /api/websites/{id}/comparison` | Observed facts: your latest audit vs. each analysed competitor, plus content-gap terms |
+| `POST /api/content/generate` | AI text for a brief (optionally revising `previous_text`); not saved |
+| `GET/POST /api/content` · `PATCH/DELETE /api/content/{id}` | Content drafts; filters `status`, `client_id` |
 | `GET /api/team` | Users in your organisation (for assignment) |
 | `PATCH /api/organisation` | `{name?, currency?}` (owner/admin) |

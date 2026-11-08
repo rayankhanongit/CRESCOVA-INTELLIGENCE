@@ -12,6 +12,8 @@ export interface FieldDef {
   placeholder?: string;
   wide?: boolean;
   step?: string;
+  /** id of a <datalist> on the page that offers suggestions for a text field */
+  list?: string;
 }
 
 type Values = Record<string, unknown>; // a whole record can be passed; only keys that match a field are read
@@ -59,7 +61,7 @@ export default function FormModal({ title, fields, initial = {}, submitLabel, on
                 {(id) =>
                   f.kind === "textarea" ? <Textarea id={id} {...common} />
                   : f.kind === "select" || f.kind === "id" ? <Select id={id} value={v[f.key]} onChange={set}>{(f.options ?? []).map(([val, label]) => <option key={val} value={val}>{label}</option>)}</Select>
-                  : <Input id={id} type={f.kind === "number" ? "number" : f.kind ?? "text"} step={f.step} min={f.kind === "number" ? 0 : undefined} {...common} />
+                  : <Input id={id} type={f.kind === "number" ? "number" : f.kind ?? "text"} step={f.step} list={f.list} min={f.kind === "number" ? 0 : undefined} {...common} />
                 }
               </Field>
             </div>

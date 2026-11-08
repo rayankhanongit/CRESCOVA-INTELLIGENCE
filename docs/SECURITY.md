@@ -34,6 +34,8 @@ Every tenant table carries `organisation_id`. Routers load rows and compare to t
 
 Phase D additions: every foreign reference a caller submits (lead, client, website, package, assignee) is verified to belong to the caller's organisation before it is stored; lead and client websites are accepted only as `http(s)` and rendered as links only when they start with `http(s)://` (blocks `javascript:` links); lead search escapes LIKE wildcards; proposal PDFs escape all user text; proposal status changes, lead conversion, deletions and agency settings changes are written to `audit_logs`; nothing in the CRM contacts anyone or fetches a URL.
 
+Phase C additions: AI keys live only in the server environment, travel in request headers (never URLs) and are never logged or returned; only three fixed provider hosts are contacted, so user input cannot steer these requests. All website- and user-supplied text in prompts is wrapped as untrusted data and the model has no tools; AI output is parsed as JSON or shown as plain text, and it is validated against the stored findings (unknown check ids are dropped). Competitor URLs and crawls use the same SSRF guard and robots handling as audits, with a 10-page cap and a 5-minute limit. AI calls are limited per organisation per hour and logged. Provider error bodies are never shown to users. Residual risk: a crafted page could still sway wording in an AI answer, so a person reviews everything and nothing is applied automatically. Using AI sends the relevant inputs to the provider you choose.
+
 ## Other controls
 
 - Pydantic validation on all input; SQLAlchemy parameterised queries only (no string SQL).

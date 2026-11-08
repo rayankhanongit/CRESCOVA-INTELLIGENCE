@@ -37,7 +37,9 @@ class Settings(BaseSettings):
     max_concurrent_audits_per_org: int = 2
 
     # AI providers (Phase C). Keys are read from the environment only and never sent to the frontend.
-    ai_provider: str = "none"
+    ai_provider: str = "none"  # none | gemini | openai | groq
+    ai_model: str = ""  # empty = the provider default in ai/provider.py (model names change; override here)
+    ai_requests_per_hour: int = 40  # per organisation, to bound cost
     gemini_api_key: str = ""
     openai_api_key: str = ""
     groq_api_key: str = ""

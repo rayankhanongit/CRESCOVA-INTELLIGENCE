@@ -7,7 +7,7 @@ from fastapi.responses import JSONResponse
 
 from .config import get_settings
 from .db import SessionLocal
-from .routers import audits, auth, clients, dashboard, leads, proposals, tasks, websites
+from .routers import audits, auth, clients, competitors, content, dashboard, keywords, leads, proposals, recommendations, tasks, websites
 from .security import CsrfMiddleware
 from .seo.runner import default_fetcher_factory, fail_stale_audits
 
@@ -19,6 +19,7 @@ async def lifespan(app: FastAPI):
     get_settings().resolved_secret()  # fail fast in production if SECRET_KEY is missing
     with SessionLocal() as db:
         fail_stale_audits(db)
+        competitors.fail_stale_competitors(db)
     yield
 
 
@@ -31,7 +32,8 @@ def create_app() -> FastAPI:
     app.add_middleware(CsrfMiddleware)
     app.add_middleware(CORSMiddleware, allow_origins=s.cors_origin_list, allow_credentials=True,
                        allow_methods=["GET", "POST", "PATCH", "DELETE"], allow_headers=["Content-Type", "X-Requested-With"])
-    for r in (auth.router, websites.router, audits.router, dashboard.router, leads.router, clients.router, proposals.router, tasks.router):
+    for r in (auth.router, websites.router, audits.router, dashboard.router, leads.router, clients.router, proposals.router, tasks.router,
+              recommendations.router, keywords.router, competitors.router, content.router):
         app.include_router(r)
 
     @app.get("/api/health")

@@ -97,9 +97,10 @@ export default function SettingsPage({ user }: { user: User }) {
             </Card>
             <Card>
               <SectionTitle>AI providers</SectionTitle>
-              <Row k="Active provider">{s.ai_provider === "none" ? <Badge>None — deterministic mode</Badge> : <Badge tone="accent">{s.ai_provider}</Badge>}</Row>
+              <Row k="Active provider">{!s.ai.configured ? <Badge>{s.ai_provider === "none" ? "None: deterministic mode" : `${s.ai_provider}: no key set`}</Badge> : <Badge tone="accent">{s.ai.provider}</Badge>}</Row>
+              {s.ai.configured && <Row k="Model"><span className="font-mono text-xs">{s.ai.model}</span></Row>}
               {Object.entries(s.ai_keys_configured).map(([k, v]) => <Row key={k} k={k[0].toUpperCase() + k.slice(1)}>{v ? <Badge tone="ok">Key configured</Badge> : <Badge>No key</Badge>}</Row>)}
-              <p className="mt-2 text-xs text-muted">AI recommendations are not built yet (Phase C). The SEO engine works fully without any AI key.</p>
+              <p className="mt-2 text-xs text-muted">AI features (recommendations, keyword ideas, competitor insights, content drafts) switch on when a provider and key are set in <code className="font-mono">backend/.env</code>. Everything else works without one. Keys are never sent to the browser.</p>
             </Card>
             <Card>
               <SectionTitle>External integrations</SectionTitle>

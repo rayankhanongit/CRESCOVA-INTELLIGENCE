@@ -27,6 +27,8 @@ _REAL_RESOLVE = ssrf.resolve_public_sync
 def fresh_db(monkeypatch):
     Base.metadata.drop_all(engine)
     Base.metadata.create_all(engine)
+    from app.ai import service as ai_service
+    ai_service.reset_limiter()
     login_limiter.reset()
     register_limiter.reset()
     # Tests never touch the network: DNS says everything is a public address, fetching is faked.

@@ -33,4 +33,16 @@ Why JSON columns: per-page headings/links/images and per-audit summaries are rea
 
 Design choices: `activities` is one table for both leads and clients instead of a separate `lead_activities`; totals are not stored (they are computed from the lines, so they can't drift); money is `NUMERIC(12,2)` read back as a float rounded to 2 decimals (switch to `Decimal` before adding invoicing); proposal lines copy description and price so they survive package edits or deletion.
 
-Not yet created (later phases): keywords, keyword_groups, competitors, client_projects, content_entries, reports, notifications, ai_usage_logs, seo_recommendations.
+## Phase C tables (migration `0003_phase_c_ai_modules.py`)
+
+| Table | Purpose | Key columns / constraints |
+|---|---|---|
+| `seo_recommendations` | AI advice about one check in one audit | `audit_id` (CASCADE), `check_id`, `interpretation`, `recommendation`, `example`, `status` (suggested/accepted/dismissed), `provider`, `model` |
+| `keywords` | Keyword workspace | `website_id` (CASCADE, nullable), `term`, `intent`, `topic`, `mapped_url`, `source` (manual/ai_estimate/imported), `search_volume`, `difficulty`, `cpc`, `position` (**only ever entered or imported by a person**), `metrics_source` |
+| `competitors` | Competitor sites per website | `website_id` (CASCADE), unique (`website_id`, `url`), `status`, `analysis` (JSON of counted facts), `insights` (JSON, AI-labelled), `error` |
+| `content_entries` | Content drafts (the Phase E calendar will schedule these rows) | `client_id` (SET NULL), `kind`, `platform`, `body`, `params` (JSON brief), `ai_generated`, `status`, `publish_date` |
+| `ai_usage_logs` | One row per AI call | `purpose`, `provider`, `model`, `tokens_in/out` (when reported), `ok` |
+
+Deviation from the original entity list: there is no `keyword_groups` table; a keyword's `topic` string is its group, which is all the UI needs.
+
+Not yet created (later phases): client_projects, reports, notifications.

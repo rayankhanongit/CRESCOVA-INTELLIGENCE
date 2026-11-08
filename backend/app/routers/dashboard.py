@@ -4,6 +4,7 @@ from fastapi import APIRouter, Depends
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from ..ai.service import ai_status
 from ..config import get_settings
 from ..crm.overview import business_overview
 from ..db import get_db
@@ -62,6 +63,7 @@ def system_status(user: User = Depends(current_user)):
         "environment": s.environment,
         "database": "sqlite" if s.database_url.startswith("sqlite") else s.database_url.split(":", 1)[0],
         "ai_provider": s.ai_provider,
+        "ai": ai_status(),  # {configured, provider, model}: lets the UI explain why AI buttons are disabled
         "ai_keys_configured": {"gemini": bool(s.gemini_api_key), "openai": bool(s.openai_api_key), "groq": bool(s.groq_api_key)},
         "category_weights": s.seo_category_weights,
         "crawl_limits": {"max_pages": s.crawl_max_pages_limit, "max_depth": s.crawl_max_depth_limit, "delay_seconds": s.crawl_delay_seconds},

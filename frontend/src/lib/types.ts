@@ -58,7 +58,7 @@ export interface CheckCatalogue {
 export interface SystemStatus {
   environment: string; database: string; ai_provider: string; ai_keys_configured: Record<string, boolean>;
   category_weights: Record<string, number>; crawl_limits: { max_pages: number; max_depth: number; delay_seconds: number };
-  registration_open: boolean; integrations: Record<string, string>;
+  registration_open: boolean; integrations: Record<string, string>; ai: { configured: boolean; provider: string; model: string };
 }
 
 // ---- Phase D: agency management
@@ -100,3 +100,28 @@ export interface Business {
   funnel: { stage: LeadStatus; leads: number }[]; leads_by_month: { month: string; leads: number }[]; client_growth: { month: string; clients: number }[];
   attention: { kind: "task" | "followup"; id: number; title: string; due: string; overdue: boolean }[];
 }
+
+// ---- Phase C: AI-assisted modules
+export type Intent = "informational" | "navigational" | "commercial" | "transactional";
+export interface Recommendation {
+  id: number; audit_id: number; check_id: string; check_name: string; severity: Severity | ""; interpretation: string; recommendation: string;
+  example: string; status: "suggested" | "accepted" | "dismissed"; provider: string; model: string;
+}
+export interface KeywordRow {
+  id: number; term: string; website_id: number | null; intent: Intent; topic: string; mapped_url: string; source: "manual" | "ai_estimate" | "imported";
+  search_volume: number | null; difficulty: number | null; cpc: number | null; position: number | null; metrics_source: string; notes: string;
+}
+export interface KeywordSuggestion { term: string; intent: Intent; topic: string; rationale: string }
+export interface SiteSummary {
+  pages_analysed: number; avg_word_count: number; pct_with_title: number; pct_with_description: number; pct_with_h1: number; pct_with_schema: number;
+  schema_types: Record<string, number>; top_terms: string[]; sample_titles: string[];
+  site: { https: boolean; robots: boolean; sitemap: boolean; sitemap_urls: number; blocked_by_robots: boolean };
+}
+export interface Insights { observed: string[]; interpretation: string[]; opportunities: string[]; ai_generated: boolean; provider: string; model: string; generated_at: string }
+export interface Competitor { id: number; website_id: number; name: string; url: string; status: "idle" | "running" | "done" | "failed"; last_analysed_at: string | null; analysis: SiteSummary | null; insights: Insights | null; error: string | null }
+export interface CompetitiveView {
+  website: { id: number; name: string }; own: SiteSummary | null; own_audit_id: number | null; note: string;
+  competitors: { id: number; name: string; analysis: SiteSummary; content_gaps: string[] }[];
+}
+export type ContentKind = "blog_article" | "seo_page" | "instagram_caption" | "facebook_post" | "linkedin_post" | "video_script" | "content_ideas" | "content_calendar" | "meta_title" | "meta_description" | "faq" | "service_description";
+export interface ContentEntry { id: number; title: string; kind: ContentKind; platform: string; body: string; params: Record<string, unknown>; ai_generated: boolean; status: string; client_id: number | null; publish_date: string | null }

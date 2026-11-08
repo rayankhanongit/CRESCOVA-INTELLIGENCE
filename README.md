@@ -2,7 +2,7 @@
 
 An AI-assisted SEO intelligence and agency-operations platform for Crescova. It runs locally: a FastAPI backend with a real website crawler and deterministic SEO engine, a React frontend, and a relational database.
 
-> **Status: Phases A, B and D are built and tested. Phases C, E and F are not built yet.** See [Project status](#project-status) for exactly what works and what does not.
+> **Status: Phases A, B, C and D are built and tested. Phases E and F are not built yet. Phase C's AI features have only been tested against mocked provider responses (no API key was available): see [AI integration](docs/AI_INTEGRATION.md).** See [Project status](#project-status) for exactly what works and what does not.
 
 ## What works today
 
@@ -16,6 +16,11 @@ An AI-assisted SEO intelligence and agency-operations platform for Crescova. It 
 | Audit history | Every audit is stored; compare any two audits (new / resolved / persistent issues, category deltas); score trend charts |
 | Page analysis | Per-page view of title, description, canonical, headings, images, links, schema, indexability, score, findings |
 | Exports | Audit findings as CSV, JSON and PDF; page/audit findings CSV from the UI |
+| AI provider layer | Gemini, OpenAI or Groq behind one interface (plain HTTPS, no SDKs), chosen by environment variable. Off by default; everything else works without it. Per-organisation hourly limit and a usage log |
+| AI SEO recommendations | Explains your stored findings and suggests fixes; kept separate from the deterministic findings, labelled, reviewable (accept/dismiss), and unable to add findings or change scores. Page title/description rewrite suggestions |
+| Keyword Intelligence | Manual keywords with intent, topic, mapped page and **user-entered** metrics (volume, difficulty, CPC, position and where they came from), CSV export, and AI keyword ideas clearly labelled as estimates with no metrics |
+| Competitor Analysis | Crawls up to 10 public pages per competitor (same SSRF-safe, robots-respecting crawler) and compares observed facts with your latest audit: tables, chart, content-gap terms. Optional AI interpretation, separated from the facts. No access to competitor analytics, backlinks or rankings is claimed |
+| AI Content Studio | 12 content types with topic, audience, voice, keywords, length and objective; editable output, revise/regenerate, save drafts (optionally per client) with status. Nothing is published |
 | Leads CRM | Add/edit/delete leads, search and filter, Kanban board (drag a card or use its status menu) and table, lead detail with activity timeline (notes, calls, emails, meetings, status changes), follow-up dates, last-contacted tracking, source tracking |
 | Lead qualification | **Rules-based, not AI.** Checks the lead against your own pricing packages and returns a suggested priority, matching packages, next action and questions to ask, with every scoring signal shown. It only suggests: it never changes a lead's status, and your own priority is never overwritten |
 | Clients | Convert a lead (explicit action), add clients manually, status, contract dates, monthly value, services, notes, history timeline (includes the source lead's timeline) |
@@ -34,7 +39,7 @@ Navigation shows all 14 planned modules. Modules that are not built are **disabl
 |---|---|---|
 | A | Foundation: auth, DB + migrations, design system, navigation, dashboard | ✅ Done |
 | B | SEO engine: websites, crawler, checks, scoring, history, page analysis, exports | ✅ Done |
-| C | AI provider abstraction, AI recommendations, keyword intelligence, competitor analysis, content studio | ❌ Not started (settings page shows provider/key status only) |
+| C | AI provider abstraction, AI recommendations, keyword intelligence, competitor analysis, content studio | ✅ Built; verified with mocked provider responses only (no real API call made). Not done: AI lead qualification, a usage-log screen, internal-linking suggestions |
 | D | Leads CRM, lead qualification, clients, proposals, onboarding, tasks | ✅ Done, with these gaps: qualification is rules-based (the AI variant waits for Phase C); no `client_projects` table (services are free text on the client); no tax lines, invoices or payment tracking; no email sending of any kind |
 | E | Content calendar, client reporting, notifications | ❌ Not started |
 | F | Hardening pass, extended docs (CRM, AI), deployment guide | ⚠️ Partially: security/testing docs exist for A+B only |
@@ -46,7 +51,7 @@ Also not implemented: Lighthouse/Core Web Vitals, JavaScript-rendered crawling (
 - **Backend:** Python 3.12, FastAPI, SQLAlchemy 2, Alembic, Pydantic, httpx/httpcore, BeautifulSoup + lxml, PyJWT, argon2-cffi, ReportLab
 - **Frontend:** React 19, TypeScript, Vite, Tailwind CSS 4, TanStack Query, React Router, Recharts, Lucide
 - **Database:** SQLite by default (zero setup). PostgreSQL is supported by the models via `DATABASE_URL` but has not been tested yet.
-- **Tests:** pytest (91) and Vitest + Testing Library (37)
+- **Tests:** pytest (109) and Vitest + Testing Library (47)
 
 ## Prerequisites (Windows)
 
@@ -103,7 +108,7 @@ Details: [docs/TESTING.md](docs/TESTING.md).
 
 [Architecture](docs/ARCHITECTURE.md) · [SEO engine & scoring](docs/SEO_ENGINE.md) · [Security](docs/SECURITY.md) · [Database](docs/DATABASE_SCHEMA.md) · [API](docs/API_DOCUMENTATION.md) · [Testing](docs/TESTING.md) · [Deployment](docs/DEPLOYMENT.md)
 
-[CRM, proposals and onboarding](docs/CRM_DOCUMENTATION.md). AI-integration and keyword documentation will be written together with those modules.
+[CRM, proposals and onboarding](docs/CRM_DOCUMENTATION.md). [AI integration](docs/AI_INTEGRATION.md).
 
 ## Troubleshooting
 

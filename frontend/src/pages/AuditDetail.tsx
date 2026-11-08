@@ -6,6 +6,7 @@ import { api } from "../lib/api";
 import { CATEGORY_LABEL, fmtDate, fmtDuration, hostOf, pathOf, scoreTone } from "../lib/format";
 import type { AuditDetail, CategoryKey, CheckCatalogue, Finding, PageRow } from "../lib/types";
 import { FindingsList } from "../components/Findings";
+import Recommendations from "../components/Recommendations";
 import { Badge, Button, Card, Confirm, ErrorState, PageHeader, ScoreRing, SectionTitle, Spinner, Stat, StatusBadge, useToast } from "../components/ui";
 
 export function ScoreExplainer({ audit }: { audit: AuditDetail }) {
@@ -97,6 +98,7 @@ export default function AuditDetailPage() {
             {findings.isLoading ? <Spinner /> : <FindingsList findings={findings.data ?? []} exportName={`audit-${id}-findings`} pageLinks />}
           </div>
 
+          <div className="mt-6"><Recommendations auditId={id} /></div>
           <div className="mt-6"><ScoreExplainer audit={a} /></div>
 
           <Card className="mt-6" pad={false}>
