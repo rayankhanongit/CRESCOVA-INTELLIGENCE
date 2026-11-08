@@ -1,16 +1,21 @@
 """Relational models for Phases A and B. Every tenant-owned row carries organisation_id."""
-from datetime import datetime
+from datetime import date, datetime
 
-from sqlalchemy import JSON, Boolean, Float, ForeignKey, Index, Integer, String, Text, UniqueConstraint
+from sqlalchemy import JSON, Boolean, Date, Float, ForeignKey, Index, Integer, Numeric, String, Text, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .db import Base, UTCDateTime, utcnow
+
+# shortcut: money is read back as a float rounded to 2dp (stored as NUMERIC); fine for quotes and totals,
+# switch to Decimal if invoicing or payment tracking is added.
+Money = Numeric(12, 2, asdecimal=False)
 
 
 class Organisation(Base):
     __tablename__ = "organisations"
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(String(200))
+    currency: Mapped[str] = mapped_column(String(3), default="USD", server_default="USD")  # one currency per agency
     created_at: Mapped[datetime] = mapped_column(UTCDateTime, default=utcnow)
 
 
@@ -116,4 +121,135 @@ class AuditLog(Base):
     action: Mapped[str] = mapped_column(String(80))
     detail: Mapped[str] = mapped_column(Text, default="")
     ip: Mapped[str] = mapped_column(String(64), default="")
+    created_at: Mapped[datetime] = mapped_column(UTCDateTime, default=utcnow)
+
+
+# ------------------------------------------------------------------ Phase D: agency management
+def _org_fk():
+    return mapped_column(ForeignKey("organisations.id", ondelete="CASCADE"), index=True)
+
+
+class PricingPackage(Base):
+    __tablename__ = "pricing_packages"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    organisation_id: Mapped[int] = _org_fk()
+    name: Mapped[str] = mapped_column(String(200))
+    description: Mapped[str] = mapped_column(Text, default="")
+    price: Mapped[float] = mapped_column(Money, default=0)
+    billing: Mapped[str] = mapped_column(String(10), default="one_time")  # one_time | monthly
+    is_active: Mapped[bool] = mapped_column(Boolean, default=True)
+    created_at: Mapped[datetime] = mapped_column(UTCDateTime, default=utcnow)
+
+
+class Lead(Base):
+    __tablename__ = "leads"
+    __table_args__ = (Index("ix_lead_org_status", "organisation_id", "status"),)
+    id: Mapped[int] = mapped_column(primary_key=True)
+    organisation_id: Mapped[int] = _org_fk()
+    name: Mapped[str] = mapped_column(String(200))
+    email: Mapped[str] = mapped_column(String(254), default="")
+    phone: Mapped[str] = mapped_column(String(40), default="")
+    company: Mapped[str] = mapped_column(String(200), default="")
+    website: Mapped[str] = mapped_column(String(2048), default="")  # stored text only; never fetched
+    service_interest: Mapped[str] = mapped_column(String(300), default="")
+    budget: Mapped[float | None] = mapped_column(Money, nullable=True)
+    source: Mapped[str] = mapped_column(String(80), default="")
+    notes: Mapped[str] = mapped_column(Text, default="")
+    status: Mapped[str] = mapped_column(String(20), default="new")
+    priority: Mapped[str] = mapped_column(String(10), default="")  # set by a person; "" = not set
+    qualification: Mapped[dict | None] = mapped_column(JSON, nullable=True)
+    last_contacted_at: Mapped[datetime | None] = mapped_column(UTCDateTime, nullable=True)
+    next_follow_up: Mapped[date | None] = mapped_column(Date, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(UTCDateTime, default=utcnow)
+    updated_at: Mapped[datetime] = mapped_column(UTCDateTime, default=utcnow, onupdate=utcnow)
+
+
+class Client(Base):
+    __tablename__ = "clients"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    organisation_id: Mapped[int] = _org_fk()
+    source_lead_id: Mapped[int | None] = mapped_column(ForeignKey("leads.id", ondelete="SET NULL"), nullable=True, index=True)
+    name: Mapped[str] = mapped_column(String(200))
+    company: Mapped[str] = mapped_column(String(200), default="")
+    email: Mapped[str] = mapped_column(String(254), default="")
+    phone: Mapped[str] = mapped_column(String(40), default="")
+    website: Mapped[str] = mapped_column(String(2048), default="")
+    services: Mapped[str] = mapped_column(Text, default="")
+    contract_start: Mapped[date | None] = mapped_column(Date, nullable=True)
+    contract_end: Mapped[date | None] = mapped_column(Date, nullable=True)
+    monthly_value: Mapped[float] = mapped_column(Money, default=0)
+    status: Mapped[str] = mapped_column(String(20), default="onboarding")
+    notes: Mapped[str] = mapped_column(Text, default="")
+    created_at: Mapped[datetime] = mapped_column(UTCDateTime, default=utcnow)
+    updated_at: Mapped[datetime] = mapped_column(UTCDateTime, default=utcnow, onupdate=utcnow)
+
+
+class Activity(Base):
+    """Timeline entry for a lead or a client (notes, calls, emails, meetings, status changes, qualification runs)."""
+    __tablename__ = "activities"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    organisation_id: Mapped[int] = _org_fk()
+    lead_id: Mapped[int | None] = mapped_column(ForeignKey("leads.id", ondelete="CASCADE"), nullable=True, index=True)
+    client_id: Mapped[int | None] = mapped_column(ForeignKey("clients.id", ondelete="CASCADE"), nullable=True, index=True)
+    user_id: Mapped[int | None] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
+    kind: Mapped[str] = mapped_column(String(20))
+    text: Mapped[str] = mapped_column(Text)
+    created_at: Mapped[datetime] = mapped_column(UTCDateTime, default=utcnow)
+
+
+class Proposal(Base):
+    __tablename__ = "proposals"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    organisation_id: Mapped[int] = _org_fk()
+    lead_id: Mapped[int | None] = mapped_column(ForeignKey("leads.id", ondelete="SET NULL"), nullable=True, index=True)
+    client_id: Mapped[int | None] = mapped_column(ForeignKey("clients.id", ondelete="SET NULL"), nullable=True, index=True)
+    recipient_name: Mapped[str] = mapped_column(String(200), default="")  # snapshot, survives deleting the lead/client
+    title: Mapped[str] = mapped_column(String(200))
+    description: Mapped[str] = mapped_column(Text, default="")
+    deliverables: Mapped[str] = mapped_column(Text, default="")
+    timeline: Mapped[str] = mapped_column(Text, default="")
+    payment_terms: Mapped[str] = mapped_column(Text, default="")
+    discount_percent: Mapped[float] = mapped_column(Float, default=0)
+    status: Mapped[str] = mapped_column(String(20), default="draft", index=True)
+    valid_until: Mapped[date | None] = mapped_column(Date, nullable=True)
+    sent_at: Mapped[datetime | None] = mapped_column(UTCDateTime, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(UTCDateTime, default=utcnow)
+    updated_at: Mapped[datetime] = mapped_column(UTCDateTime, default=utcnow, onupdate=utcnow)
+    items: Mapped[list["ProposalItem"]] = relationship(cascade="all, delete-orphan", order_by="ProposalItem.position")
+
+
+class ProposalItem(Base):
+    __tablename__ = "proposal_items"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    proposal_id: Mapped[int] = mapped_column(ForeignKey("proposals.id", ondelete="CASCADE"), index=True)
+    package_id: Mapped[int | None] = mapped_column(ForeignKey("pricing_packages.id", ondelete="SET NULL"), nullable=True)
+    description: Mapped[str] = mapped_column(String(500))
+    quantity: Mapped[float] = mapped_column(Float, default=1)
+    unit_price: Mapped[float] = mapped_column(Money, default=0)
+    position: Mapped[int] = mapped_column(Integer, default=0)
+
+
+class OnboardingTask(Base):
+    __tablename__ = "onboarding_tasks"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    organisation_id: Mapped[int] = _org_fk()
+    client_id: Mapped[int] = mapped_column(ForeignKey("clients.id", ondelete="CASCADE"), index=True)
+    title: Mapped[str] = mapped_column(String(300))
+    done: Mapped[bool] = mapped_column(Boolean, default=False)
+    done_at: Mapped[datetime | None] = mapped_column(UTCDateTime, nullable=True)
+    position: Mapped[int] = mapped_column(Integer, default=0)
+
+
+class Task(Base):
+    __tablename__ = "tasks"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    organisation_id: Mapped[int] = _org_fk()
+    title: Mapped[str] = mapped_column(String(300))
+    notes: Mapped[str] = mapped_column(Text, default="")
+    due_date: Mapped[date | None] = mapped_column(Date, nullable=True)
+    priority: Mapped[str] = mapped_column(String(10), default="medium")
+    completed_at: Mapped[datetime | None] = mapped_column(UTCDateTime, nullable=True)
+    assignee_id: Mapped[int | None] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
+    website_id: Mapped[int | None] = mapped_column(ForeignKey("websites.id", ondelete="SET NULL"), nullable=True)
+    client_id: Mapped[int | None] = mapped_column(ForeignKey("clients.id", ondelete="SET NULL"), nullable=True)
     created_at: Mapped[datetime] = mapped_column(UTCDateTime, default=utcnow)

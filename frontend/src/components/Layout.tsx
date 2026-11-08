@@ -17,13 +17,13 @@ export const NAV: Item[] = [
   { label: "Keyword Intelligence", icon: <KeyRound className={I} />, phase: "Phase C" },
   { label: "Competitor Analysis", icon: <Swords className={I} />, phase: "Phase C" },
   { label: "SEO History", icon: <History className={I} />, to: "/history" },
-  { label: "Leads CRM", icon: <Users className={I} />, phase: "Phase D" },
-  { label: "Clients", icon: <UserCheck className={I} />, phase: "Phase D" },
-  { label: "Proposals", icon: <FileText className={I} />, phase: "Phase D" },
+  { label: "Leads CRM", icon: <Users className={I} />, to: "/leads" },
+  { label: "Clients", icon: <UserCheck className={I} />, to: "/clients" },
+  { label: "Proposals", icon: <FileText className={I} />, to: "/proposals" },
   { label: "Content Calendar", icon: <CalendarDays className={I} />, phase: "Phase E" },
   { label: "AI Content Studio", icon: <Wand2 className={I} />, phase: "Phase C" },
   { label: "Reports", icon: <BarChart3 className={I} />, phase: "Phase E" },
-  { label: "Tasks & Reminders", icon: <ListChecks className={I} />, phase: "Phase D" },
+  { label: "Tasks & Reminders", icon: <ListChecks className={I} />, to: "/tasks" },
   { label: "Settings", icon: <Cog className={I} />, to: "/settings" },
 ];
 

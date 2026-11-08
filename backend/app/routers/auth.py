@@ -15,7 +15,8 @@ router = APIRouter(prefix="/api/auth", tags=["auth"])
 
 def _out(user: User) -> UserOut:
     return UserOut(id=user.id, email=user.email, full_name=user.full_name, role=user.role,
-                   organisation_id=user.organisation_id, organisation_name=user.organisation.name)
+                   organisation_id=user.organisation_id, organisation_name=user.organisation.name,
+                   organisation_currency=user.organisation.currency)
 
 
 @router.post("/register", response_model=UserOut, status_code=201)

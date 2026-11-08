@@ -5,6 +5,7 @@ import { MemoryRouter } from "react-router-dom";
 import { vi } from "vitest";
 import { ToastProvider } from "./components/ui";
 import { ThemeProvider } from "./lib/theme";
+import type { Business } from "./lib/types";
 
 export function renderApp(ui: ReactElement, route = "/") {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
@@ -12,6 +13,11 @@ export function renderApp(ui: ReactElement, route = "/") {
     <ThemeProvider><QueryClientProvider client={client}><ToastProvider><MemoryRouter initialEntries={[route]}>{ui}</MemoryRouter></ToastProvider></QueryClientProvider></ThemeProvider>,
   );
 }
+
+export const emptyBusiness: Business = {
+  currency: "USD", leads_total: 0, leads_new: 0, leads_qualified: 0, clients_active: 0, clients_total: 0, proposals_sent: 0, proposals_accepted: 0,
+  conversion_rate: null, monthly_recurring_value: 0, accepted_proposal_value: 0, funnel: [], leads_by_month: [], client_growth: [], attention: [],
+};
 
 type Handler = (init: RequestInit | undefined, url: string) => { status?: number; body?: unknown };
 /** Stubs fetch with routes keyed by "METHOD /api/path". Unmatched requests fail the test loudly. */

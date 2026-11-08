@@ -17,6 +17,20 @@ Conventions: JSON; auth by `crescova_session` cookie; every non-GET request need
 | `GET /api/audits/compare?base=&target=` | New / resolved / persistent findings, score and category deltas |
 | `GET /api/audits/{id}/export.{csv\|json\|pdf}` | Downloads (completed audits only) |
 | `GET /api/meta/checks` | Check catalogue, categories and severity weights |
-| `GET /api/dashboard/overview` | Aggregated figures (`business` is `null` until the CRM exists) |
+| `GET /api/dashboard/overview` | Aggregated SEO and business figures, all computed from stored rows |
 | `GET /api/system/status` | Non-secret configuration status (key *presence* only) |
 | `GET /api/health` | Liveness |
+| `GET/POST /api/leads` · `GET/PATCH/DELETE /api/leads/{id}` | Leads; list filters `q`, `status`, `source`, `priority`. `status: "converted"` via PATCH → 422 |
+| `GET/POST /api/leads/{id}/activities` | Timeline; POST kinds `note`, `call`, `email`, `meeting` |
+| `POST /api/leads/{id}/qualify` | Store a rules-based assessment (never changes status or priority) |
+| `POST /api/leads/{id}/convert` | Create a client from the lead → 201; 409 if already converted |
+| `GET/POST /api/clients` · `GET/PATCH/DELETE /api/clients/{id}` | Clients; list filters `q`, `status` |
+| `GET /api/clients/{id}/history` · `POST /api/clients/{id}/activities` | Client timeline (includes the source lead's) / add a note |
+| `GET/POST /api/clients/{id}/onboarding` · `POST /api/clients/{id}/onboarding/start` · `PATCH/DELETE /api/onboarding/{item_id}` | Checklist; `start` creates the standard items once (409 if any exist) |
+| `GET/POST /api/packages` · `PATCH/DELETE /api/packages/{id}` | Pricing packages |
+| `GET/POST /api/proposals` · `GET/PATCH/DELETE /api/proposals/{id}` | Proposals with embedded `items` and computed `subtotal`, `discount_amount`, `total`. PATCH only on drafts (409 otherwise); `items` in PATCH replaces all lines |
+| `POST /api/proposals/{id}/status` | `{status}`; recorded only, nothing is sent |
+| `GET /api/proposals/{id}/pdf` | PDF download |
+| `GET/POST /api/tasks` · `PATCH/DELETE /api/tasks/{id}` | Tasks; list filters `state` (open, overdue, done), `website_id`, `client_id`; PATCH `{done: true/false}` toggles completion |
+| `GET /api/team` | Users in your organisation (for assignment) |
+| `PATCH /api/organisation` | `{name?, currency?}` (owner/admin) |

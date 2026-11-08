@@ -2,7 +2,7 @@
 
 An AI-assisted SEO intelligence and agency-operations platform for Crescova. It runs locally: a FastAPI backend with a real website crawler and deterministic SEO engine, a React frontend, and a relational database.
 
-> **Status: Phases A and B are built and tested. Phases C–F are not built yet.** See [Project status](#project-status) for exactly what works and what does not.
+> **Status: Phases A, B and D are built and tested. Phases C, E and F are not built yet.** See [Project status](#project-status) for exactly what works and what does not.
 
 ## What works today
 
@@ -16,7 +16,14 @@ An AI-assisted SEO intelligence and agency-operations platform for Crescova. It 
 | Audit history | Every audit is stored; compare any two audits (new / resolved / persistent issues, category deltas); score trend charts |
 | Page analysis | Per-page view of title, description, canonical, headings, images, links, schema, indexability, score, findings |
 | Exports | Audit findings as CSV, JSON and PDF; page/audit findings CSV from the UI |
-| Dashboard | Real figures computed from stored audits. No demo or placeholder numbers |
+| Leads CRM | Add/edit/delete leads, search and filter, Kanban board (drag a card or use its status menu) and table, lead detail with activity timeline (notes, calls, emails, meetings, status changes), follow-up dates, last-contacted tracking, source tracking |
+| Lead qualification | **Rules-based, not AI.** Checks the lead against your own pricing packages and returns a suggested priority, matching packages, next action and questions to ask, with every scoring signal shown. It only suggests: it never changes a lead's status, and your own priority is never overwritten |
+| Clients | Convert a lead (explicit action), add clients manually, status, contract dates, monthly value, services, notes, history timeline (includes the source lead's timeline) |
+| Onboarding | Standard 9-item checklist you can add to, rename, tick and delete, with progress. The access item tells you never to collect passwords in plain text |
+| Proposals | Pick a lead or client, build lines from your pricing packages or custom lines, discount, deliverables, timeline, payment terms, validity date, PDF export, statuses (draft, sent, accepted, rejected, expired). Only drafts are editable. Nothing is ever emailed: "sent" records that you sent the PDF yourself |
+| Pricing and agency | Pricing packages are managed in Settings (nothing is pre-filled). One currency per agency, set in Settings |
+| Tasks & reminders | Tasks with due dates, priority, assignee, website and client links; overdue and due-soon reminders on the Tasks page and the Overview. In-app only |
+| Dashboard | Real figures computed from stored data: SEO audits plus leads, conversion, clients, proposals, recurring value, funnel, acquisition and client-growth charts, and a needs-attention list. No demo or placeholder numbers |
 | UI | Premium light/dark design system (persisted), collapsible sidebar, responsive down to phone width, empty/loading/error states, toasts |
 
 ## Project status
@@ -28,18 +35,18 @@ Navigation shows all 14 planned modules. Modules that are not built are **disabl
 | A | Foundation: auth, DB + migrations, design system, navigation, dashboard | ✅ Done |
 | B | SEO engine: websites, crawler, checks, scoring, history, page analysis, exports | ✅ Done |
 | C | AI provider abstraction, AI recommendations, keyword intelligence, competitor analysis, content studio | ❌ Not started (settings page shows provider/key status only) |
-| D | Leads CRM, AI lead qualification, clients, proposals, onboarding, tasks | ❌ Not started |
+| D | Leads CRM, lead qualification, clients, proposals, onboarding, tasks | ✅ Done, with these gaps: qualification is rules-based (the AI variant waits for Phase C); no `client_projects` table (services are free text on the client); no tax lines, invoices or payment tracking; no email sending of any kind |
 | E | Content calendar, client reporting, notifications | ❌ Not started |
 | F | Hardening pass, extended docs (CRM, AI), deployment guide | ⚠️ Partially: security/testing docs exist for A+B only |
 
-Also not implemented: Lighthouse/Core Web Vitals, JavaScript-rendered crawling (Playwright), microdata/RDFa parsing (JSON-LD only), PostgreSQL testing (SQLite is what was run), background job queue (audits run in-process; they are marked failed if the server restarts), Google Analytics 4 / Search Console integrations, user management beyond the owner account, password reset, org-configurable scoring weights (server env only).
+Also not implemented: Lighthouse/Core Web Vitals, JavaScript-rendered crawling (Playwright), microdata/RDFa parsing (JSON-LD only), PostgreSQL testing (SQLite is what was run), background job queue (audits run in-process; they are marked failed if the server restarts), Google Analytics 4 / Search Console integrations, user management beyond the owner account (tasks can only be assigned to existing users, and only one exists until user management is built), password reset, org-configurable scoring weights (server env only).
 
 ## Technology
 
 - **Backend:** Python 3.12, FastAPI, SQLAlchemy 2, Alembic, Pydantic, httpx/httpcore, BeautifulSoup + lxml, PyJWT, argon2-cffi, ReportLab
 - **Frontend:** React 19, TypeScript, Vite, Tailwind CSS 4, TanStack Query, React Router, Recharts, Lucide
 - **Database:** SQLite by default (zero setup). PostgreSQL is supported by the models via `DATABASE_URL` but has not been tested yet.
-- **Tests:** pytest (78) and Vitest + Testing Library (19)
+- **Tests:** pytest (91) and Vitest + Testing Library (37)
 
 ## Prerequisites (Windows)
 
@@ -96,7 +103,7 @@ Details: [docs/TESTING.md](docs/TESTING.md).
 
 [Architecture](docs/ARCHITECTURE.md) · [SEO engine & scoring](docs/SEO_ENGINE.md) · [Security](docs/SECURITY.md) · [Database](docs/DATABASE_SCHEMA.md) · [API](docs/API_DOCUMENTATION.md) · [Testing](docs/TESTING.md) · [Deployment](docs/DEPLOYMENT.md)
 
-CRM, AI-integration and keyword documentation will be written together with those modules.
+[CRM, proposals and onboarding](docs/CRM_DOCUMENTATION.md). AI-integration and keyword documentation will be written together with those modules.
 
 ## Troubleshooting
 

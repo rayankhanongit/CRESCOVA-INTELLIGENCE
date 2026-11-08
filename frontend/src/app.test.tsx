@@ -12,9 +12,9 @@ import type { Finding, Overview, User, Website } from "./lib/types";
 import Login from "./pages/Login";
 import OverviewPage, { pivotTrend } from "./pages/Overview";
 import WebsitesPage from "./pages/Websites";
-import { mockApi, renderApp } from "./test-utils";
+import { emptyBusiness, mockApi, renderApp } from "./test-utils";
 
-const user: User = { id: 1, email: "a@b.co", full_name: "Ada", role: "owner", organisation_id: 1, organisation_name: "Acme Agency" };
+const user: User = { id: 1, email: "a@b.co", full_name: "Ada", role: "owner", organisation_id: 1, organisation_name: "Acme Agency", organisation_currency: "USD" };
 const site = (o: Partial<Website> = {}): Website => ({ id: 1, name: "Acme", url: "https://acme.com/", category: "Plumbing", target_audience: "", market: "UK", platform: "", description: "", created_at: "2026-01-01T00:00:00Z", last_audit_at: null, current_score: null, ...o });
 const finding = (o: Partial<Finding> = {}): Finding => ({ id: 1, page_id: 5, check_id: "title_present", name: "Page has a title", severity: "critical", category: "onpage", url: "https://acme.com/a", explanation: "No title element.", why_it_matters: "Titles drive clicks.", recommendation: "Write a unique title.", evidence: "", ...o });
 
@@ -152,12 +152,14 @@ describe("websites", () => {
 });
 
 describe("overview", () => {
-  const base: Overview = { seo: { websites: 0, audits_total: 0, average_score: null, critical_issues: 0, warnings: 0, improvements_completed: 0 }, score_trend: [], audit_activity: [], recent_audits: [], business: null };
+  const base: Overview = { seo: { websites: 0, audits_total: 0, average_score: null, critical_issues: 0, warnings: 0, improvements_completed: 0 }, score_trend: [], audit_activity: [], recent_audits: [], business: emptyBusiness };
   it("prompts to add a website when there is no data and never invents business numbers", async () => {
     mockApi({ "GET /api/dashboard/overview": base });
     renderApp(<OverviewPage />);
     expect(await screen.findByText("Add your first website")).toBeInTheDocument();
-    expect(screen.getByText(/intentionally absent/)).toBeInTheDocument();
+    expect(screen.getByText(/No leads or clients yet/)).toBeInTheDocument();
+    expect(screen.getByText("Total leads").parentElement).toHaveTextContent("0");
+    expect(screen.getByText("Conversion rate").parentElement).toHaveTextContent("—");
   });
   it("renders stored statistics", async () => {
     mockApi({ "GET /api/dashboard/overview": { ...base, seo: { websites: 3, audits_total: 7, average_score: 82.5, critical_issues: 4, warnings: 11, improvements_completed: 5 } } });

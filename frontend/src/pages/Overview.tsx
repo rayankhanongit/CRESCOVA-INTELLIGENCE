@@ -3,8 +3,9 @@ import { Globe, Plus } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Bar, BarChart, CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { api } from "../lib/api";
+import { LEAD_LABEL, money } from "../lib/crm";
 import { fmtDate, scoreTone } from "../lib/format";
-import type { Overview } from "../lib/types";
+import type { Business, Overview } from "../lib/types";
 import { Card, EmptyState, ErrorState, PageHeader, SectionTitle, Spinner, Stat, StatusBadge } from "../components/ui";
 
 const PALETTE = ["var(--accent)", "var(--info)", "var(--warn)", "var(--danger)", "var(--ok)"];
@@ -22,6 +23,68 @@ export function pivotTrend(points: Overview["score_trend"]) {
 
 const axis = { stroke: "var(--muted)", fontSize: 12 } as const;
 const tip = { contentStyle: { background: "var(--surface)", border: "1px solid var(--line)", borderRadius: 12, color: "var(--fg)" } };
+
+export function BusinessSection({ b }: { b: Business }) {
+  const m = (v: number) => <span className="text-2xl">{money(v, b.currency)}</span>;  // long currency strings need a smaller size to fit the card
+  const empty = b.leads_total === 0 && b.clients_total === 0;
+  return (
+    <section className="mt-8" aria-label="Agency business">
+      <h2 className="mb-3 font-display text-lg font-semibold">Agency business</h2>
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+        <Stat label="Total leads" value={b.leads_total} />
+        <Stat label="New leads" value={b.leads_new} />
+        <Stat label="Qualified leads" value={b.leads_qualified} />
+        <Stat label="Conversion rate" value={b.conversion_rate == null ? "—" : `${b.conversion_rate}%`} hint="Leads converted to clients" />
+        <Stat label="Active clients" value={b.clients_active} hint={`${b.clients_total} in total`} />
+        <Stat label="Proposals sent" value={b.proposals_sent} hint={`${b.proposals_accepted} accepted`} />
+        <Stat label="Monthly recurring value" value={m(b.monthly_recurring_value)} hint="Active clients' monthly fees" />
+        <Stat label="Accepted proposals" value={m(b.accepted_proposal_value)} hint="Total value after discounts" />
+      </div>
+      <p className="mt-2 text-xs text-muted">Revenue figures come from client fees and accepted proposals you entered. Invoices and payments are not tracked yet, so there is no outstanding-payments figure.</p>
+
+      {empty ? (
+        <Card className="mt-4"><p className="text-sm text-muted">No leads or clients yet. <Link className="text-accent hover:underline" to="/leads">Add your first lead</Link> to see the funnel and trends.</p></Card>
+      ) : (
+        <div className="mt-4 grid gap-4 lg:grid-cols-3">
+          <Card>
+            <SectionTitle>Lead funnel</SectionTitle>
+            <div className="h-56" role="img" aria-label="Bar chart of leads at each pipeline stage">
+              <ResponsiveContainer><BarChart data={b.funnel.map((f) => ({ ...f, stage: LEAD_LABEL[f.stage] }))} layout="vertical" margin={{ left: 24 }}>
+                <CartesianGrid stroke="var(--line)" horizontal={false} /><XAxis type="number" allowDecimals={false} {...axis} /><YAxis type="category" dataKey="stage" width={90} {...axis} /><Tooltip {...tip} />
+                <Bar dataKey="leads" fill="var(--accent)" radius={[0, 6, 6, 0]} /></BarChart></ResponsiveContainer>
+            </div>
+          </Card>
+          <Card>
+            <SectionTitle>Lead acquisition</SectionTitle>
+            <div className="h-56" role="img" aria-label="Bar chart of new leads per month">
+              <ResponsiveContainer><BarChart data={b.leads_by_month}><CartesianGrid stroke="var(--line)" vertical={false} /><XAxis dataKey="month" {...axis} /><YAxis allowDecimals={false} {...axis} /><Tooltip {...tip} /><Bar dataKey="leads" fill="var(--info)" radius={[6, 6, 0, 0]} /></BarChart></ResponsiveContainer>
+            </div>
+          </Card>
+          <Card>
+            <SectionTitle>Client growth</SectionTitle>
+            <div className="h-56" role="img" aria-label="Line chart of cumulative clients per month">
+              <ResponsiveContainer><LineChart data={b.client_growth}><CartesianGrid stroke="var(--line)" vertical={false} /><XAxis dataKey="month" {...axis} /><YAxis allowDecimals={false} {...axis} /><Tooltip {...tip} /><Line type="monotone" dataKey="clients" stroke="var(--ok)" strokeWidth={2.5} dot /></LineChart></ResponsiveContainer>
+            </div>
+          </Card>
+        </div>
+      )}
+
+      <Card className="mt-4">
+        <SectionTitle>Needs attention</SectionTitle>
+        {!b.attention.length ? <p className="text-sm text-muted">No overdue follow-ups and no tasks due in the next two days.</p> : (
+          <ul className="divide-y divide-line text-sm">
+            {b.attention.map((a) => (
+              <li key={`${a.kind}${a.id}`} className="flex items-center justify-between gap-3 py-2">
+                <Link className="font-medium hover:text-accent" to={a.kind === "task" ? "/tasks" : `/leads/${a.id}`}>{a.title}</Link>
+                <span className={a.overdue ? "text-danger" : "text-muted"}>{a.overdue ? "Overdue · " : "Due "}{fmtDate(a.due)}</span>
+              </li>
+            ))}
+          </ul>
+        )}
+      </Card>
+    </section>
+  );
+}
 
 export default function OverviewPage() {
   const { data, isLoading, error, refetch } = useQuery({ queryKey: ["overview"], queryFn: () => api<Overview>("/dashboard/overview") });
@@ -100,10 +163,7 @@ export default function OverviewPage() {
         </>
       )}
 
-      <Card className="mt-4">
-        <SectionTitle>Agency business metrics</SectionTitle>
-        <p className="text-sm text-muted">Leads, clients, proposals, conversion and revenue appear here once the CRM module (Phase D) is built. They are intentionally absent rather than filled with placeholder numbers.</p>
-      </Card>
+      <BusinessSection b={data.business} />
     </>
   );
 }

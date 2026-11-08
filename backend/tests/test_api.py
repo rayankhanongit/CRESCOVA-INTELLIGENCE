@@ -92,7 +92,7 @@ def test_full_seo_workflow(authed):
 
     ov = authed.get("/api/dashboard/overview").json()
     assert ov["seo"]["websites"] == 1 and ov["seo"]["audits_total"] == 1 and ov["seo"]["average_score"] == a["score"]
-    assert ov["business"] is None  # no fabricated CRM numbers
+    assert ov["business"]["leads_total"] == 0 and ov["business"]["conversion_rate"] is None  # no fabricated CRM numbers
 
 
 def test_audit_comparison_new_resolved_persistent(authed):

@@ -16,4 +16,21 @@ Deletion: deleting an organisation removes everything it owns; deleting a websit
 
 Why JSON columns: per-page headings/links/images and per-audit summaries are read whole and never queried by field, so normalising them would add joins without benefit. Everything filterable (status, severity, category, score, fingerprint) is a real column.
 
-Not yet created (later phases): keywords, keyword_groups, competitors, leads, lead_activities, clients, client_projects, proposals, proposal_items, pricing_packages, onboarding_tasks, content_entries, tasks, reports, notifications, ai_usage_logs, seo_recommendations.
+## Phase D tables (migration `0002_phase_d_agency_management.py`)
+
+`organisations` gains `currency` (3-letter code, default `USD`): one currency per agency, so sums are always meaningful.
+
+| Table | Purpose | Key columns / constraints |
+|---|---|---|
+| `pricing_packages` | The agency's own price list | `organisation_id`, `name`, `price`, `billing` (one_time/monthly), `is_active` |
+| `leads` | Prospects | `organisation_id`, contact fields, `budget`, `source`, `status`, `priority` (set by a person), `qualification` (JSON), `last_contacted_at`, `next_follow_up`; index (`organisation_id`, `status`) |
+| `clients` | Customers | `organisation_id`, `source_lead_id → leads` (SET NULL), contract dates, `monthly_value`, `status` |
+| `activities` | Timeline for leads and clients | `lead_id → leads` (CASCADE, nullable), `client_id → clients` (CASCADE, nullable), `user_id` (SET NULL), `kind`, `text` |
+| `proposals` | Quotes | `lead_id`, `client_id` (both SET NULL), `recipient_name` snapshot, terms text, `discount_percent`, `status`, `valid_until`, `sent_at` |
+| `proposal_items` | Quote lines | `proposal_id` (CASCADE), `package_id` (SET NULL), `description`, `quantity`, `unit_price`, `position` |
+| `onboarding_tasks` | Client checklist | `client_id` (CASCADE), `title`, `done`, `done_at`, `position` |
+| `tasks` | Work items and reminders | `assignee_id` (SET NULL), `website_id` (SET NULL), `client_id` (SET NULL), `due_date`, `priority`, `completed_at` |
+
+Design choices: `activities` is one table for both leads and clients instead of a separate `lead_activities`; totals are not stored (they are computed from the lines, so they can't drift); money is `NUMERIC(12,2)` read back as a float rounded to 2 decimals (switch to `Decimal` before adding invoicing); proposal lines copy description and price so they survive package edits or deletion.
+
+Not yet created (later phases): keywords, keyword_groups, competitors, client_projects, content_entries, reports, notifications, ai_usage_logs, seo_recommendations.

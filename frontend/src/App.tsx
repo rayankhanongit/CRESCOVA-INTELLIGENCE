@@ -6,8 +6,15 @@ import { api, ApiError } from "./lib/api";
 import type { User } from "./lib/types";
 import AuditDetailPage from "./pages/AuditDetail";
 import AuditsList from "./pages/AuditsList";
+import ClientDetail from "./pages/ClientDetail";
+import ClientsPage from "./pages/Clients";
 import HistoryPage from "./pages/History";
+import LeadDetail from "./pages/LeadDetail";
+import LeadsPage from "./pages/Leads";
 import Login from "./pages/Login";
+import ProposalEditor from "./pages/ProposalEditor";
+import ProposalsPage from "./pages/Proposals";
+import TasksPage from "./pages/Tasks";
 import OverviewPage from "./pages/Overview";
 import PageDetailPage from "./pages/PageDetail";
 import SettingsPage from "./pages/Settings";
@@ -33,6 +40,13 @@ export default function App() {
         <Route path="audits/:id" element={<AuditDetailPage />} />
         <Route path="pages/:id" element={<PageDetailPage />} />
         <Route path="history" element={<HistoryPage />} />
+        <Route path="leads" element={<LeadsPage />} />
+        <Route path="leads/:id" element={<LeadDetail />} />
+        <Route path="clients" element={<ClientsPage />} />
+        <Route path="clients/:id" element={<ClientDetail />} />
+        <Route path="proposals" element={<ProposalsPage />} />
+        <Route path="proposals/:id" element={<ProposalEditor />} />
+        <Route path="tasks" element={<TasksPage />} />
         <Route path="settings" element={<SettingsPage user={user} />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Route>

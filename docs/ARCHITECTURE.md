@@ -5,7 +5,8 @@ Browser (React SPA, Vite dev :5173)
    │  /api/*  (Vite proxy in dev; same origin, cookie session, X-Requested-With header)
    ▼
 FastAPI (:8000)  ── middleware: CSRF/security headers, CORS
-   ├─ routers/   auth · websites · audits · dashboard (+ system status)
+   ├─ routers/   auth · websites · audits · dashboard · leads · clients · proposals · tasks (+ common helpers)
+   ├─ crm/       qualify (rules) · proposal_pdf · overview (dashboard figures)
    ├─ security.py   Argon2, JWT cookie, rate limiter, audit log
    ├─ seo/       ssrf · fetcher · crawler · parse · checks · scoring · runner · report
    └─ models.py  SQLAlchemy 2  ──►  SQLite (default) / PostgreSQL via DATABASE_URL

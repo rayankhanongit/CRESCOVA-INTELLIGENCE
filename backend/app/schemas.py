@@ -27,6 +27,7 @@ class UserOut(ORM):
     role: str
     organisation_id: int
     organisation_name: str
+    organisation_currency: str = "USD"
 
 
 class WebsiteIn(BaseModel):

@@ -5,6 +5,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from ..config import get_settings
+from ..crm.overview import business_overview
 from ..db import get_db
 from ..models import SeoAudit, SeoFinding, User, Website
 from ..schemas import AuditOut
@@ -50,7 +51,7 @@ def overview(user: User = Depends(current_user), db: Session = Depends(get_db)):
         "score_trend": [{"date": day(a.created_at), "score": a.score, "website": names.get(a.website_id, "")} for a in done if a.mode == "site" and a.score is not None],
         "audit_activity": [{"date": d, "audits": n} for d, n in sorted(activity.items())],
         "recent_audits": [{**AuditOut.model_validate(a).model_dump(mode="json"), "website_name": names.get(a.website_id, "")} for a in reversed(audits[-8:])],
-        "business": None,  # Leads, clients and revenue arrive with the CRM module (Phase D); no placeholder numbers.
+        "business": business_overview(db, user),
     }
 
 

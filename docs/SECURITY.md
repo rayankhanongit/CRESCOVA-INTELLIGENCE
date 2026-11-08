@@ -32,6 +32,8 @@ Every `POST/PUT/PATCH/DELETE` under `/api` must send `X-Requested-With: crescova
 
 Every tenant table carries `organisation_id`. Routers load rows and compare to the caller's organisation; other tenants' records return **404** (not 403) so IDs cannot be probed. Pages and findings are authorised through their parent audit. Covered by `test_organisation_isolation`.
 
+Phase D additions: every foreign reference a caller submits (lead, client, website, package, assignee) is verified to belong to the caller's organisation before it is stored; lead and client websites are accepted only as `http(s)` and rendered as links only when they start with `http(s)://` (blocks `javascript:` links); lead search escapes LIKE wildcards; proposal PDFs escape all user text; proposal status changes, lead conversion, deletions and agency settings changes are written to `audit_logs`; nothing in the CRM contacts anyone or fetches a URL.
+
 ## Other controls
 
 - Pydantic validation on all input; SQLAlchemy parameterised queries only (no string SQL).
