@@ -132,7 +132,7 @@ describe("competitors", () => {
 });
 
 describe("content studio", () => {
-  const saved: ContentEntry = { id: 2, title: "Old FAQ", kind: "faq", platform: "", body: "Q A", params: {}, ai_generated: true, status: "draft", client_id: null, publish_date: null };
+  const saved: ContentEntry = { id: 2, title: "Old FAQ", kind: "faq", platform: "", body: "Q A", params: {}, ai_generated: true, status: "draft", client_id: null, publish_date: null, media: [] };
   const base = { "GET /api/clients": [], "GET /api/content": [saved] };
 
   it("generates editable text, revises it with the previous draft, and saves it flagged as AI-generated", async () => {

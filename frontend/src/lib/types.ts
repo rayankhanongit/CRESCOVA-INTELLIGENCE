@@ -123,5 +123,17 @@ export interface CompetitiveView {
   website: { id: number; name: string }; own: SiteSummary | null; own_audit_id: number | null; note: string;
   competitors: { id: number; name: string; analysis: SiteSummary; content_gaps: string[] }[];
 }
-export type ContentKind = "blog_article" | "seo_page" | "instagram_caption" | "facebook_post" | "linkedin_post" | "video_script" | "content_ideas" | "content_calendar" | "meta_title" | "meta_description" | "faq" | "service_description";
-export interface ContentEntry { id: number; title: string; kind: ContentKind; platform: string; body: string; params: Record<string, unknown>; ai_generated: boolean; status: string; client_id: number | null; publish_date: string | null }
+export type ContentKind = "blog_article" | "seo_page" | "instagram_caption" | "facebook_post" | "linkedin_post" | "video_script" | "content_ideas" | "content_calendar" | "meta_title" | "meta_description" | "faq" | "service_description" | "social_post";
+export interface ContentEntry { id: number; title: string; kind: ContentKind; platform: string; body: string; params: Record<string, unknown>; ai_generated: boolean; status: string; client_id: number | null; publish_date: string | null; media: string[] }
+
+// ---- Phase E: calendar, notifications, reports
+export interface AppNotification { id: number; kind: string; title: string; link: string; read_at: string | null; created_at: string }
+export interface ReportRow { id: number; title: string; website_id: number | null; client_id: number | null; period_start: string; period_end: string; sections: string[]; created_at: string }
+export interface ReportDetailData extends ReportRow {
+  notes: string;
+  data: {
+    meta: { period_start: string; period_end: string; generated_at: string; website: { id: number; name: string; url: string } | null; client: { id: number; name: string; status: string } | null };
+    integrations: Record<string, string>; skipped: string[];
+    sections: Record<string, any>;
+  };
+}

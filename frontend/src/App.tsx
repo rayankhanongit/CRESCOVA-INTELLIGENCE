@@ -6,7 +6,10 @@ import { api, ApiError } from "./lib/api";
 import type { User } from "./lib/types";
 import AuditDetailPage from "./pages/AuditDetail";
 import AuditsList from "./pages/AuditsList";
+import CalendarPage from "./pages/Calendar";
 import ClientDetail from "./pages/ClientDetail";
+import ReportDetail from "./pages/ReportDetail";
+import ReportsPage from "./pages/Reports";
 import ClientsPage from "./pages/Clients";
 import HistoryPage from "./pages/History";
 import LeadDetail from "./pages/LeadDetail";
@@ -53,6 +56,9 @@ export default function App() {
         <Route path="keywords" element={<KeywordsPage />} />
         <Route path="competitors" element={<CompetitorsPage />} />
         <Route path="content-studio" element={<ContentStudio />} />
+        <Route path="calendar" element={<CalendarPage />} />
+        <Route path="reports" element={<ReportsPage />} />
+        <Route path="reports/:id" element={<ReportDetail />} />
         <Route path="settings" element={<SettingsPage user={user} />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Route>

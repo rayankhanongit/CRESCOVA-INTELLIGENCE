@@ -4,6 +4,7 @@ import { useState, type ReactNode } from "react";
 import { NavLink, Outlet } from "react-router-dom";
 import { api } from "../lib/api";
 import { useTheme } from "../lib/theme";
+import NotificationBell from "./NotificationBell";
 import type { User } from "../lib/types";
 
 interface Item { label: string; icon: ReactNode; to?: string; phase?: string }
@@ -20,9 +21,9 @@ export const NAV: Item[] = [
   { label: "Leads CRM", icon: <Users className={I} />, to: "/leads" },
   { label: "Clients", icon: <UserCheck className={I} />, to: "/clients" },
   { label: "Proposals", icon: <FileText className={I} />, to: "/proposals" },
-  { label: "Content Calendar", icon: <CalendarDays className={I} />, phase: "Phase E" },
+  { label: "Content Calendar", icon: <CalendarDays className={I} />, to: "/calendar" },
   { label: "AI Content Studio", icon: <Wand2 className={I} />, to: "/content-studio" },
-  { label: "Reports", icon: <BarChart3 className={I} />, phase: "Phase E" },
+  { label: "Reports", icon: <BarChart3 className={I} />, to: "/reports" },
   { label: "Tasks & Reminders", icon: <ListChecks className={I} />, to: "/tasks" },
   { label: "Settings", icon: <Cog className={I} />, to: "/settings" },
 ];
@@ -89,6 +90,7 @@ export default function Layout({ user }: { user: User }) {
         <header className="sticky top-0 z-30 flex h-16 items-center gap-3 border-b border-line bg-bg/85 px-4 backdrop-blur sm:px-6">
           <button className="rounded-lg p-2 text-muted hover:bg-surface2 lg:hidden" onClick={() => setOpen(true)} aria-label="Open menu"><Menu className="size-5" /></button>
           <div className="min-w-0 flex-1 truncate text-sm text-muted">{user.organisation_name}</div>
+          <NotificationBell />
           <button onClick={toggle} aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`} className="rounded-lg p-2 text-muted hover:bg-surface2">
             {theme === "dark" ? <Sun className="size-[18px]" /> : <Moon className="size-[18px]" />}
           </button>

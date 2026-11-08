@@ -322,6 +322,7 @@ class ContentEntry(Base):
     ai_generated: Mapped[bool] = mapped_column(Boolean, default=False)
     status: Mapped[str] = mapped_column(String(15), default="draft")  # idea|draft|in_review|approved|scheduled|published
     publish_date: Mapped[date | None] = mapped_column(Date, nullable=True)
+    media: Mapped[list] = mapped_column(JSON, default=list, server_default="[]")  # references only (URLs or file names); no uploads
     created_at: Mapped[datetime] = mapped_column(UTCDateTime, default=utcnow)
     updated_at: Mapped[datetime] = mapped_column(UTCDateTime, default=utcnow, onupdate=utcnow)
 
@@ -337,4 +338,35 @@ class AiUsageLog(Base):
     tokens_in: Mapped[int | None] = mapped_column(Integer, nullable=True)
     tokens_out: Mapped[int | None] = mapped_column(Integer, nullable=True)
     ok: Mapped[bool] = mapped_column(Boolean, default=True)
+    created_at: Mapped[datetime] = mapped_column(UTCDateTime, default=utcnow)
+
+
+# ------------------------------------------------------------------ Phase E: notifications and reports
+class Notification(Base):
+    """In-app only. Created on demand from stored data; nothing is sent outside the application."""
+    __tablename__ = "notifications"
+    __table_args__ = (UniqueConstraint("organisation_id", "dedupe_key", name="uq_notification_key"),)
+    id: Mapped[int] = mapped_column(primary_key=True)
+    organisation_id: Mapped[int] = _org_fk()
+    kind: Mapped[str] = mapped_column(String(20))
+    title: Mapped[str] = mapped_column(String(300))
+    link: Mapped[str] = mapped_column(String(200), default="")
+    dedupe_key: Mapped[str] = mapped_column(String(120))
+    read_at: Mapped[datetime | None] = mapped_column(UTCDateTime, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(UTCDateTime, default=utcnow)
+
+
+class Report(Base):
+    """A saved snapshot: the data is gathered once when the report is generated, so exports never change afterwards."""
+    __tablename__ = "reports"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    organisation_id: Mapped[int] = _org_fk()
+    website_id: Mapped[int | None] = mapped_column(ForeignKey("websites.id", ondelete="SET NULL"), nullable=True)
+    client_id: Mapped[int | None] = mapped_column(ForeignKey("clients.id", ondelete="SET NULL"), nullable=True)
+    title: Mapped[str] = mapped_column(String(200))
+    period_start: Mapped[date] = mapped_column(Date)
+    period_end: Mapped[date] = mapped_column(Date)
+    sections: Mapped[list] = mapped_column(JSON, default=list)
+    notes: Mapped[str] = mapped_column(Text, default="")
+    data: Mapped[dict] = mapped_column(JSON, default=dict)
     created_at: Mapped[datetime] = mapped_column(UTCDateTime, default=utcnow)

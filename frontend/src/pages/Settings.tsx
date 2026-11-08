@@ -1,5 +1,5 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Moon, Pencil, Plus, Sun, Trash2 } from "lucide-react";
+import { Download, Moon, Pencil, Plus, Sun, Trash2 } from "lucide-react";
 import { useState } from "react";
 import FormModal, { type FieldDef } from "../components/FormModal";
 import { api } from "../lib/api";
@@ -81,6 +81,13 @@ export default function SettingsPage({ user }: { user: User }) {
           <Row k="Agency">{user.organisation_name}</Row><Row k="Currency">{user.organisation_currency}</Row><Row k="Name">{user.full_name}</Row><Row k="Email">{user.email}</Row><Row k="Role"><Badge>{user.role}</Badge></Row>
         </Card>
         <Packages />
+        <Card className="lg:col-span-2">
+          <SectionTitle>Data export</SectionTitle>
+          <p className="mb-3 text-sm text-muted">Download your own data as CSV at any time. Spreadsheet formulas in text fields are neutralised.</p>
+          <div className="flex flex-wrap gap-2">
+            {["leads", "clients", "proposals", "tasks", "keywords", "content"].map((t) => <a key={t} href={`/api/export/${t}.csv`} download><Button size="sm"><Download className="size-3.5" />{t[0].toUpperCase() + t.slice(1)}</Button></a>)}
+          </div>
+        </Card>
 
         {sys.isLoading ? <Spinner /> : sys.error || !s ? <ErrorState error={sys.error} retry={sys.refetch} /> : (
           <>

@@ -1,5 +1,5 @@
 from datetime import date
-from typing import Literal
+from typing import Annotated, Literal
 
 from fastapi import APIRouter, Depends, Query
 from pydantic import BaseModel, Field
@@ -28,6 +28,7 @@ KINDS = {
     "meta_description": "five alternative meta descriptions (70-160 characters each)",
     "faq": "an FAQ with questions and concise answers",
     "service_description": "a website service description",
+    "social_post": "a social media post",
 }
 Kind = Literal[tuple(KINDS)]  # type: ignore[valid-type]
 Status = Literal["idea", "draft", "in_review", "approved", "scheduled", "published"]
@@ -56,6 +57,7 @@ class EntryIn(BaseModel):
     status: Status = "draft"
     client_id: int | None = None
     publish_date: date | None = None
+    media: list[Annotated[str, Field(min_length=1, max_length=500)]] = Field(default_factory=list, max_length=10)  # references (URLs or file names), not uploads
 
 
 class EntryPatch(EntryIn):
@@ -82,13 +84,21 @@ def generate(body: GenerateIn, user: User = Depends(current_user), db: Session =
 
 
 @router.get("", response_model=list[EntryOut])
-def list_entries(status: str = Query("", max_length=15), client_id: int | None = None, user: User = Depends(current_user), db: Session = Depends(get_db)):
+def list_entries(status: str = Query("", max_length=15), client_id: int | None = None, platform: str = Query("", max_length=40),
+                 start: date | None = None, end: date | None = None, user: User = Depends(current_user), db: Session = Depends(get_db)):
+    """start/end filter on publish_date (inclusive); entries without a date are returned only when no range is given."""
     q = select(ContentEntry).where(ContentEntry.organisation_id == user.organisation_id)
     if status:
         q = q.where(ContentEntry.status == status)
+    if platform:
+        q = q.where(ContentEntry.platform == platform)
+    if start:
+        q = q.where(ContentEntry.publish_date >= start)
+    if end:
+        q = q.where(ContentEntry.publish_date <= end)
     if client_id is not None:
         q = q.where(ContentEntry.client_id == client_id)
-    return db.scalars(q.order_by(ContentEntry.updated_at.desc(), ContentEntry.id.desc()).limit(500)).all()
+    return db.scalars(q.order_by(ContentEntry.publish_date.is_(None), ContentEntry.publish_date, ContentEntry.id).limit(1000)).all()
 
 
 @router.post("", response_model=EntryOut, status_code=201)

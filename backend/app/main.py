@@ -7,7 +7,7 @@ from fastapi.responses import JSONResponse
 
 from .config import get_settings
 from .db import SessionLocal
-from .routers import audits, auth, clients, competitors, content, dashboard, keywords, leads, proposals, recommendations, tasks, websites
+from .routers import audits, auth, clients, competitors, content, dashboard, exports, keywords, leads, notifications, proposals, recommendations, reports, tasks, websites
 from .security import CsrfMiddleware
 from .seo.runner import default_fetcher_factory, fail_stale_audits
 
@@ -33,7 +33,7 @@ def create_app() -> FastAPI:
     app.add_middleware(CORSMiddleware, allow_origins=s.cors_origin_list, allow_credentials=True,
                        allow_methods=["GET", "POST", "PATCH", "DELETE"], allow_headers=["Content-Type", "X-Requested-With"])
     for r in (auth.router, websites.router, audits.router, dashboard.router, leads.router, clients.router, proposals.router, tasks.router,
-              recommendations.router, keywords.router, competitors.router, content.router):
+              recommendations.router, keywords.router, competitors.router, content.router, notifications.router, reports.router, exports.router):
         app.include_router(r)
 
     @app.get("/api/health")

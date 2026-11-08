@@ -41,5 +41,9 @@ Conventions: JSON; auth by `crescova_session` cookie; every non-GET request need
 | `GET /api/websites/{id}/comparison` | Observed facts: your latest audit vs. each analysed competitor, plus content-gap terms |
 | `POST /api/content/generate` | AI text for a brief (optionally revising `previous_text`); not saved |
 | `GET/POST /api/content` · `PATCH/DELETE /api/content/{id}` | Content drafts; filters `status`, `client_id` |
+| `GET /api/content?start=&end=&platform=&client_id=&status=` | Calendar queries (date range is inclusive; undated entries only without a range) |
+| `GET /api/notifications` · `POST /api/notifications/{id}/read` · `POST /api/notifications/read-all` | In-app notifications (GET refreshes them from stored data first) |
+| `GET/POST /api/reports` · `GET/DELETE /api/reports/{id}` · `GET /api/reports/{id}/export.{pdf\|csv\|json}` | Saved report snapshots (`period_start`, `period_end` ≤ 1 year, `sections`, `website_id`/`client_id`) |
+| `GET /api/export/{leads\|clients\|proposals\|tasks\|keywords\|content}.csv` | Your data as CSV |
 | `GET /api/team` | Users in your organisation (for assignment) |
 | `PATCH /api/organisation` | `{name?, currency?}` (owner/admin) |

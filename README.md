@@ -2,7 +2,7 @@
 
 An AI-assisted SEO intelligence and agency-operations platform for Crescova. It runs locally: a FastAPI backend with a real website crawler and deterministic SEO engine, a React frontend, and a relational database.
 
-> **Status: Phases A, B, C and D are built and tested. Phases E and F are not built yet. Phase C's AI features have only been tested against mocked provider responses (no API key was available): see [AI integration](docs/AI_INTEGRATION.md).** See [Project status](#project-status) for exactly what works and what does not.
+> **Status: Phases A to E are built and tested. Phase F (hardening) is in progress. Phase C's AI features have only been tested against mocked provider responses (no API key was available): see [AI integration](docs/AI_INTEGRATION.md).** See [Project status](#project-status) for exactly what works and what does not.
 
 ## What works today
 
@@ -21,6 +21,10 @@ An AI-assisted SEO intelligence and agency-operations platform for Crescova. It 
 | Keyword Intelligence | Manual keywords with intent, topic, mapped page and **user-entered** metrics (volume, difficulty, CPC, position and where they came from), CSV export, and AI keyword ideas clearly labelled as estimates with no metrics |
 | Competitor Analysis | Crawls up to 10 public pages per competitor (same SSRF-safe, robots-respecting crawler) and compares observed facts with your latest audit: tables, chart, content-gap terms. Optional AI interpretation, separated from the facts. No access to competitor analytics, backlinks or rankings is claimed |
 | AI Content Studio | 12 content types with topic, audience, voice, keywords, length and objective; editable output, revise/regenerate, save drafts (optionally per client) with status. Nothing is published |
+| Content Calendar | Month, week and list views; filter by client and platform; entries with status, date, client, caption and media references. Planning only: nothing is published to any platform |
+| Reports | Saved snapshots for a website and/or client over a custom period. Sections: SEO audit, keywords, completed tasks, accepted AI recommendations, project progress, content, your notes. Every section is labelled **measured**, **entered by your team** or **AI-generated**. Export as PDF, CSV or JSON. Google Analytics and Search Console are not connected and reports say so |
+| Notifications | In-app bell for overdue/due tasks, follow-ups, finished audits, expired proposals and content due today. Nothing is sent outside the app |
+| Data export | CSV of leads, clients, proposals, tasks, keywords and content from Settings |
 | Leads CRM | Add/edit/delete leads, search and filter, Kanban board (drag a card or use its status menu) and table, lead detail with activity timeline (notes, calls, emails, meetings, status changes), follow-up dates, last-contacted tracking, source tracking |
 | Lead qualification | **Rules-based, not AI.** Checks the lead against your own pricing packages and returns a suggested priority, matching packages, next action and questions to ask, with every scoring signal shown. It only suggests: it never changes a lead's status, and your own priority is never overwritten |
 | Clients | Convert a lead (explicit action), add clients manually, status, contract dates, monthly value, services, notes, history timeline (includes the source lead's timeline) |
@@ -41,7 +45,7 @@ Navigation shows all 14 planned modules. Modules that are not built are **disabl
 | B | SEO engine: websites, crawler, checks, scoring, history, page analysis, exports | ✅ Done |
 | C | AI provider abstraction, AI recommendations, keyword intelligence, competitor analysis, content studio | ✅ Built; verified with mocked provider responses only (no real API call made). Not done: AI lead qualification, a usage-log screen, internal-linking suggestions |
 | D | Leads CRM, lead qualification, clients, proposals, onboarding, tasks | ✅ Done, with these gaps: qualification is rules-based (the AI variant waits for Phase C); no `client_projects` table (services are free text on the client); no tax lines, invoices or payment tracking; no email sending of any kind |
-| E | Content calendar, client reporting, notifications | ❌ Not started |
+| E | Content calendar, client reporting, notifications | ✅ Done. Not done: publishing to social platforms, GA4 / Search Console data, e-mail or push notifications, file uploads for media |
 | F | Hardening pass, extended docs (CRM, AI), deployment guide | ⚠️ Partially: security/testing docs exist for A+B only |
 
 Also not implemented: Lighthouse/Core Web Vitals, JavaScript-rendered crawling (Playwright), microdata/RDFa parsing (JSON-LD only), PostgreSQL testing (SQLite is what was run), background job queue (audits run in-process; they are marked failed if the server restarts), Google Analytics 4 / Search Console integrations, user management beyond the owner account (tasks can only be assigned to existing users, and only one exists until user management is built), password reset, org-configurable scoring weights (server env only).
@@ -51,7 +55,7 @@ Also not implemented: Lighthouse/Core Web Vitals, JavaScript-rendered crawling (
 - **Backend:** Python 3.12, FastAPI, SQLAlchemy 2, Alembic, Pydantic, httpx/httpcore, BeautifulSoup + lxml, PyJWT, argon2-cffi, ReportLab
 - **Frontend:** React 19, TypeScript, Vite, Tailwind CSS 4, TanStack Query, React Router, Recharts, Lucide
 - **Database:** SQLite by default (zero setup). PostgreSQL is supported by the models via `DATABASE_URL` but has not been tested yet.
-- **Tests:** pytest (109) and Vitest + Testing Library (47)
+- **Tests:** pytest (117) and Vitest + Testing Library (56)
 
 ## Prerequisites (Windows)
 

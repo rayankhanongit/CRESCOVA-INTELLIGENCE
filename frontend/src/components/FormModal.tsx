@@ -19,8 +19,10 @@ export interface FieldDef {
 type Values = Record<string, unknown>; // a whole record can be passed; only keys that match a field are read
 
 /** Data-driven form in a modal: converts blanks to null for numbers/dates/ids, shows server errors inline. */
-export default function FormModal({ title, fields, initial = {}, submitLabel, onSubmit, onClose }: {
+export default function FormModal({ title, fields, initial = {}, submitLabel, onSubmit, onClose, footer }: {
   title: string; fields: FieldDef[]; initial?: Values; submitLabel: string; onSubmit: (payload: Record<string, unknown>) => Promise<unknown>; onClose: () => void;
+  /** extra controls at the left of the button row (e.g. a Delete button) */
+  footer?: React.ReactNode;
 }) {
   const [v, setV] = useState<Record<string, string>>(() => Object.fromEntries(fields.map((f) => [f.key, String(initial[f.key] ?? "")])));
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -69,6 +71,7 @@ export default function FormModal({ title, fields, initial = {}, submitLabel, on
         })}
         {serverError && <p role="alert" className="rounded-lg bg-dangersoft px-3 py-2 text-sm text-danger sm:col-span-2">{serverError}</p>}
         <div className="flex justify-end gap-2 sm:col-span-2">
+          {footer}
           <Button type="button" onClick={onClose}>Cancel</Button>
           <Button type="submit" variant="primary" busy={busy}>{submitLabel}</Button>
         </div>

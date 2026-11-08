@@ -45,4 +45,12 @@ Design choices: `activities` is one table for both leads and clients instead of 
 
 Deviation from the original entity list: there is no `keyword_groups` table; a keyword's `topic` string is its group, which is all the UI needs.
 
-Not yet created (later phases): client_projects, reports, notifications.
+## Phase E (migration `0004_phase_e_calendar_reports_notifications.py`)
+
+| Change | Detail |
+|---|---|
+| `content_entries.media` | JSON list of up to 10 media references (links or file names) |
+| `notifications` | `organisation_id`, `kind`, `title`, `link`, `dedupe_key`, `read_at`; unique (`organisation_id`, `dedupe_key`) so syncing is idempotent |
+| `reports` | `website_id`, `client_id` (both SET NULL), `title`, `period_start/end`, `sections`, `notes`, `data` (JSON snapshot including per-section source labels) |
+
+Not yet created: client_projects.

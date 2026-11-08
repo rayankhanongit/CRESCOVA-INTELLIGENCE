@@ -4,10 +4,10 @@
 
 ```powershell
 cd D:\projects\CRESCOVA_INTELLIGENCE\backend
-.\.venv\Scripts\python.exe -m pytest              # 109 tests
+.\.venv\Scripts\python.exe -m pytest              # 117 tests
 
 cd D:\projects\CRESCOVA_INTELLIGENCE\frontend
-npm test                                          # 47 tests (Vitest + Testing Library)
+npm test                                          # 56 tests (Vitest + Testing Library)
 npm run build                                     # tsc --noEmit + production build
 ```
 
@@ -27,6 +27,9 @@ If the system drive is full, set `$env:TEMP="D:\tmp"` first (pytest creates a te
 
 | AI (backend) | `backend/tests/test_ai.py` | request shape for OpenAI, Groq and Gemini against **mocked HTTP** (URLs, headers, the Gemini key kept out of the URL, JSON mode, token parsing), safe error messages, provider resolution, prompt wrapping of untrusted text, 503 when unconfigured with manual features still working, recommendations limited to supplied findings and review/regenerate behaviour, provider failure (502) and logging, hourly rate limit, page rewrite not stored, keyword suggestions with no metrics and nothing saved until chosen, CSV formula safety, competitor SSRF rejection, analysis, robots block, comparison and content gaps, content generate/revise/save/manage, and isolation across organisations including forged references |
 | AI (frontend) | `frontend/src/ai.test.tsx` | recommendations disabled/enabled by AI status and labelled, review calls, keyword metrics shown only if entered, AI suggestion flow (warning shown, saved as estimates without numbers), competitor facts vs. AI section, content studio generate/edit/revise/save and manual use without AI |
+
+| Phase E (backend) | `backend/tests/test_reports.py` | calendar date/platform/client filters and media validation, notification generation rules, de-duplication, read/read-all and isolation, report snapshot contents and source labels, keywords never gaining AI-made metrics, score change and resolved issues between audits, no analytics figures, period/scope validation, skipped-section explanations, PDF/CSV/JSON exports, formula safety, report and export isolation incl. forged references |
+| Phase E (frontend) | `frontend/src/phase-e.test.tsx` | calendar grid maths, entries on the right day, server-side filters, view switching, create-on-day with media lines, edit/delete, report generator validation and payload, source labels and "not connected" notice, export links, notification bell |
 
 **Not verified:** no request was ever sent to Gemini, OpenAI or Groq. The provider code is exercised only against mocked responses written from the providers' documented formats, so the first real call may still reveal a mismatch.
 

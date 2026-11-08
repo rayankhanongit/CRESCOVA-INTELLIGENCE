@@ -12,7 +12,7 @@ import type { Client, ContentEntry, ContentKind } from "../lib/types";
 export const KIND_LABEL: Record<ContentKind, string> = {
   blog_article: "Blog article", seo_page: "SEO page content", instagram_caption: "Instagram caption", facebook_post: "Facebook post", linkedin_post: "LinkedIn post",
   video_script: "Short-form video script", content_ideas: "Content ideas", content_calendar: "Content calendar", meta_title: "Meta titles", meta_description: "Meta descriptions",
-  faq: "FAQs", service_description: "Website service description",
+  faq: "FAQs", service_description: "Website service description", social_post: "Social media post",
 };
 const STATUSES = ["idea", "draft", "in_review", "approved", "scheduled", "published"];
 const SOCIAL: Partial<Record<ContentKind, string>> = { instagram_caption: "Instagram", facebook_post: "Facebook", linkedin_post: "LinkedIn", video_script: "Short-form video" };
