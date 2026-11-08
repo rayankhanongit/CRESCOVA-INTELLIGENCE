@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, Response
 from sqlalchemy import select
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, selectinload
 
 from ..crm.proposal_pdf import proposal_pdf
 from ..db import get_db, utcnow
@@ -77,7 +77,8 @@ def delete_package(package_id: int, user: User = Depends(current_user), db: Sess
 # ---- proposals
 @router.get("/proposals", response_model=list[ProposalOut])
 def list_proposals(status: str = Query("", max_length=20), user: User = Depends(current_user), db: Session = Depends(get_db)):
-    rows = list(db.scalars(select(Proposal).where(Proposal.organisation_id == user.organisation_id).order_by(Proposal.created_at.desc(), Proposal.id.desc()).limit(500)))
+    rows = list(db.scalars(select(Proposal).options(selectinload(Proposal.items)).where(Proposal.organisation_id == user.organisation_id)
+                           .order_by(Proposal.created_at.desc(), Proposal.id.desc()).limit(500)))  # selectinload: one query for all line items, not one per proposal
     _expire(db, rows)
     return [out(p) for p in rows if not status or p.status == status]
 

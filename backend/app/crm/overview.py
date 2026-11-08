@@ -4,7 +4,7 @@ no "outstanding payments" figure."""
 from collections import Counter
 
 from sqlalchemy import select
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, selectinload
 
 from ..db import utcnow
 from ..models import Client, Lead, Proposal, Task, User
@@ -21,7 +21,7 @@ def business_overview(db: Session, user: User) -> dict:
     org = user.organisation_id
     leads = db.scalars(select(Lead).where(Lead.organisation_id == org)).all()
     clients = db.scalars(select(Client).where(Client.organisation_id == org).order_by(Client.created_at)).all()
-    proposals = db.scalars(select(Proposal).where(Proposal.organisation_id == org)).all()
+    proposals = db.scalars(select(Proposal).options(selectinload(Proposal.items)).where(Proposal.organisation_id == org)).all()
     by_status = Counter(lead.status for lead in leads)
     today = utcnow().date()
 

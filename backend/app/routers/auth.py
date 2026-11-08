@@ -8,7 +8,7 @@ from ..db import get_db
 from ..models import Organisation, User
 from ..schemas import LoginIn, RegisterIn, UserOut
 from ..security import (audit_log, clear_session, current_user, hash_password, login_limiter, register_limiter,
-                        set_session, verify_password)
+                        set_session, user_from_cookie, verify_password)
 
 router = APIRouter(prefix="/api/auth", tags=["auth"])
 
@@ -55,7 +55,12 @@ def login(body: LoginIn, request: Request, response: Response, db: Session = Dep
 
 
 @router.post("/logout", status_code=204)
-def logout(response: Response):
+def logout(request: Request, response: Response, db: Session = Depends(get_db)):
+    """Clears the cookie and revokes the session on the server: a copied token stops working. This signs out every device."""
+    user = user_from_cookie(request, db)
+    if user:
+        user.session_epoch += 1
+        db.commit()
     clear_session(response)
 
 

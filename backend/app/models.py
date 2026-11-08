@@ -27,6 +27,7 @@ class User(Base):
     password_hash: Mapped[str] = mapped_column(String(255))
     full_name: Mapped[str] = mapped_column(String(200))
     role: Mapped[str] = mapped_column(String(20), default="owner")
+    session_epoch: Mapped[int] = mapped_column(Integer, default=0, server_default="0")  # bumped on logout: older session tokens stop working
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
     created_at: Mapped[datetime] = mapped_column(UTCDateTime, default=utcnow)
     organisation: Mapped[Organisation] = relationship()

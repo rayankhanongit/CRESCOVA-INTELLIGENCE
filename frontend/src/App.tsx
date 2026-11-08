@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import { lazy, Suspense } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
 import Layout from "./components/Layout";
 import { Spinner } from "./components/ui";
@@ -11,21 +12,23 @@ import ClientDetail from "./pages/ClientDetail";
 import ReportDetail from "./pages/ReportDetail";
 import ReportsPage from "./pages/Reports";
 import ClientsPage from "./pages/Clients";
-import HistoryPage from "./pages/History";
 import LeadDetail from "./pages/LeadDetail";
 import LeadsPage from "./pages/Leads";
 import Login from "./pages/Login";
 import ProposalEditor from "./pages/ProposalEditor";
 import ProposalsPage from "./pages/Proposals";
 import TasksPage from "./pages/Tasks";
-import CompetitorsPage from "./pages/Competitors";
 import ContentStudio from "./pages/ContentStudio";
 import KeywordsPage from "./pages/Keywords";
-import OverviewPage from "./pages/Overview";
 import PageDetailPage from "./pages/PageDetail";
 import SettingsPage from "./pages/Settings";
 import WebsiteDetail from "./pages/WebsiteDetail";
 import WebsitesPage from "./pages/Websites";
+
+// Chart-heavy pages load on demand so the charting library stays out of the first download.
+const OverviewPage = lazy(() => import("./pages/Overview"));
+const HistoryPage = lazy(() => import("./pages/History"));
+const CompetitorsPage = lazy(() => import("./pages/Competitors"));
 
 export default function App() {
   const me = useQuery({
@@ -37,6 +40,7 @@ export default function App() {
   if (!me.data) return <Login />;
   const user = me.data;
   return (
+    <Suspense fallback={<Spinner />}>
     <Routes>
       <Route element={<Layout user={user} />}>
         <Route index element={<OverviewPage />} />
@@ -63,5 +67,6 @@ export default function App() {
         <Route path="*" element={<Navigate to="/" replace />} />
       </Route>
     </Routes>
+    </Suspense>
   );
 }

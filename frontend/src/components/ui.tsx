@@ -125,7 +125,7 @@ export function EmptyState({ icon, title, body, action }: { icon?: ReactNode; ti
   return (
     <div className="flex flex-col items-center rounded-2xl border border-dashed border-line px-6 py-14 text-center">
       {icon && <div className="mb-3 grid size-12 place-items-center rounded-xl bg-accentsoft text-accent">{icon}</div>}
-      <h3 className="font-display text-lg font-semibold">{title}</h3>
+      <h2 className="font-display text-lg font-semibold">{title}</h2>
       {body && <p className="mt-1 max-w-md text-sm text-muted">{body}</p>}
       {action && <div className="mt-4">{action}</div>}
     </div>

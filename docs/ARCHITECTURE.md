@@ -26,7 +26,7 @@ FastAPI (:8000)  ── middleware: CSRF/security headers, CORS
 - `src/lib/api.ts` is the only code that calls `fetch`; it adds the CSRF header and normalises FastAPI error shapes.
 - Design tokens are CSS variables in `src/index.css` (light and dark), exposed to Tailwind through `@theme inline`. Theme is applied before first paint from `index.html` and persisted in `localStorage`.
 - Shared primitives in `components/ui.tsx`; finding list/expansion in `components/Findings.tsx`; shell and navigation in `components/Layout.tsx` (`NAV` marks unbuilt modules as disabled with their phase).
-- Known: the production bundle is one ~770 kB chunk (227 kB gzip) because charts are not code-split yet.
+- Chart-heavy pages (Overview, History, Competitors) are lazy-loaded, so the charting library (about 105 kB gzip) is not part of the first download; the main bundle is about 462 kB (135 kB gzip).
 
 ## Planned (not built)
 

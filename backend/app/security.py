@@ -17,6 +17,7 @@ from .models import AuditLog, User
 COOKIE = "crescova_session"
 CSRF_HEADER = "x-requested-with"
 CSRF_VALUE = "crescova"
+MAX_BODY_BYTES = 1_000_000  # largest JSON request accepted (the biggest legitimate payloads are a few KB of text)
 _hasher = PasswordHasher()
 _DUMMY_HASH = _hasher.hash("not-a-real-password")
 
@@ -34,24 +35,32 @@ def verify_password(pw: str, hashed: str | None) -> bool:
 
 def set_session(response: Response, user: User) -> None:
     s = get_settings()
-    token = jwt.encode({"sub": str(user.id), "exp": utcnow() + timedelta(hours=s.session_hours)}, s.resolved_secret(), "HS256")
-    response.set_cookie(COOKIE, token, max_age=s.session_hours * 3600, httponly=True, samesite="lax", secure=s.cookie_secure, path="/")
+    token = jwt.encode({"sub": str(user.id), "ep": user.session_epoch, "exp": utcnow() + timedelta(hours=s.session_hours)}, s.resolved_secret(), "HS256")
+    # Production always uses Secure cookies, whatever COOKIE_SECURE says.
+    response.set_cookie(COOKIE, token, max_age=s.session_hours * 3600, httponly=True, samesite="lax", secure=s.cookie_secure or s.environment == "production", path="/")
 
 
 def clear_session(response: Response) -> None:
     response.delete_cookie(COOKIE, path="/")
 
 
-def current_user(request: Request, db: Session = Depends(get_db)) -> User:
+def user_from_cookie(request: Request, db: Session) -> User | None:
+    """The user behind a valid, unrevoked session cookie, else None."""
     token = request.cookies.get(COOKIE)
     if not token:
-        raise HTTPException(401, "Not authenticated")
+        return None
     try:
-        uid = int(jwt.decode(token, get_settings().resolved_secret(), algorithms=["HS256"])["sub"])
+        claims = jwt.decode(token, get_settings().resolved_secret(), algorithms=["HS256"])
+        uid, epoch = int(claims["sub"]), int(claims.get("ep", 0))
     except (jwt.PyJWTError, KeyError, ValueError):
-        raise HTTPException(401, "Session expired") from None
+        return None
     user = db.get(User, uid)
-    if not user or not user.is_active:
+    return user if user and user.is_active and user.session_epoch == epoch else None
+
+
+def current_user(request: Request, db: Session = Depends(get_db)) -> User:
+    user = user_from_cookie(request, db)
+    if not user:
         raise HTTPException(401, "Not authenticated")
     return user
 
@@ -61,16 +70,23 @@ class CsrfMiddleware(BaseHTTPMiddleware):
     without a CORS preflight, which we only allow for configured origins; combined with SameSite=Lax cookies this blocks CSRF."""
 
     async def dispatch(self, request: Request, call_next):
-        if request.method in ("POST", "PUT", "PATCH", "DELETE") and request.url.path.startswith("/api"):
+        from fastapi.responses import JSONResponse
+        api = request.url.path.startswith("/api")
+        if api and request.method in ("POST", "PUT", "PATCH", "DELETE"):
             if request.headers.get(CSRF_HEADER) != CSRF_VALUE:
-                from fastapi.responses import JSONResponse
                 return JSONResponse({"detail": "Missing CSRF header"}, status_code=403)
+        # shortcut: only a declared Content-Length is checked (chunked bodies are not), so also set a body limit at the reverse proxy.
+        if api and int(request.headers.get("content-length") or 0) > MAX_BODY_BYTES:
+            return JSONResponse({"detail": "Request body too large"}, status_code=413)
         response = await call_next(request)
         response.headers.setdefault("X-Content-Type-Options", "nosniff")
         response.headers.setdefault("X-Frame-Options", "DENY")
         response.headers.setdefault("Referrer-Policy", "no-referrer")
-        if request.url.path.startswith("/api"):
+        if api:
             response.headers.setdefault("Cache-Control", "no-store")
+            response.headers.setdefault("Content-Security-Policy", "default-src 'none'; frame-ancestors 'none'")  # the API serves data and downloads, never pages
+        if get_settings().environment == "production":
+            response.headers.setdefault("Strict-Transport-Security", "max-age=31536000; includeSubDomains")
         return response
 
 

@@ -102,19 +102,26 @@ export default function CalendarPage() {
         </Card>
       ) : (
         <div className="overflow-x-auto">
-          <div className="grid min-w-[44rem] grid-cols-7 gap-px overflow-hidden rounded-2xl border border-line bg-line" role="grid" aria-label={title}>
-            {DOW.map((d) => <div key={d} role="columnheader" className="bg-surface2 px-2 py-1.5 text-xs font-semibold uppercase tracking-wide text-muted">{d}</div>)}
-            {days.map((d) => {
-              const key = iso(d), list = byDay.get(key) ?? [], other = view === "month" && d.getMonth() !== cursor.getMonth();
-              const shown = view === "month" ? list.slice(0, 3) : list;
-              return (
-                <div key={key} role="gridcell" aria-label={key} className={`flex min-h-28 flex-col gap-1 bg-surface p-1.5 ${other ? "opacity-50" : ""}`}>
-                  <button onClick={() => setForm({ date: key })} aria-label={`Add content on ${key}`} className={`self-start rounded px-1.5 text-xs font-medium hover:bg-surface2 ${key === today ? "bg-accent text-accentfg hover:bg-accent" : "text-muted"}`}>{d.getDate()}</button>
-                  {shown.map(chip)}
-                  {list.length > shown.length && <button className="text-left text-xs text-muted hover:text-fg" onClick={() => { setCursor(d); setView("week"); }}>+{list.length - shown.length} more</button>}
-                </div>
-              );
-            })}
+          {/* a proper ARIA grid: rows contain the column headers / day cells */}
+          <div className="flex min-w-[44rem] flex-col gap-px overflow-hidden rounded-2xl border border-line bg-line" role="grid" aria-label={title}>
+            <div role="row" className="grid grid-cols-7 gap-px">
+              {DOW.map((d) => <div key={d} role="columnheader" className="bg-surface2 px-2 py-1.5 text-xs font-semibold uppercase tracking-wide text-muted">{d}</div>)}
+            </div>
+            {Array.from({ length: days.length / 7 }, (_, w) => days.slice(w * 7, w * 7 + 7)).map((week) => (
+              <div key={iso(week[0])} role="row" className="grid grid-cols-7 gap-px">
+                {week.map((d) => {
+                  const key = iso(d), list = byDay.get(key) ?? [], other = view === "month" && d.getMonth() !== cursor.getMonth();
+                  const shown = view === "month" ? list.slice(0, 3) : list;
+                  return (
+                    <div key={key} role="gridcell" aria-label={key} className={`flex min-h-28 flex-col gap-1 bg-surface p-1.5 ${other ? "opacity-50" : ""}`}>
+                      <button onClick={() => setForm({ date: key })} aria-label={`Add content on ${key}`} className={`self-start rounded px-1.5 text-xs font-medium hover:bg-surface2 ${key === today ? "bg-accent text-accentfg hover:bg-accent" : "text-muted"}`}>{d.getDate()}</button>
+                      {shown.map(chip)}
+                      {list.length > shown.length && <button className="text-left text-xs text-muted hover:text-fg" onClick={() => { setCursor(d); setView("week"); }}>+{list.length - shown.length} more</button>}
+                    </div>
+                  );
+                })}
+              </div>
+            ))}
           </div>
         </div>
       )}

@@ -8,6 +8,8 @@ afterEach(() => {
   document.documentElement.removeAttribute("data-theme");
 });
 
+HTMLCanvasElement.prototype.getContext = (() => null) as never; // jsdom has no canvas; silences axe-core's "not implemented" noise
+
 // jsdom lacks these browser APIs used by recharts / layout.
 class RO { observe() {} unobserve() {} disconnect() {} }
 (globalThis as any).ResizeObserver ??= RO;

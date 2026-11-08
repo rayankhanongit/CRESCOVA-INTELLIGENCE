@@ -2,7 +2,7 @@
 
 An AI-assisted SEO intelligence and agency-operations platform for Crescova. It runs locally: a FastAPI backend with a real website crawler and deterministic SEO engine, a React frontend, and a relational database.
 
-> **Status: Phases A to E are built and tested. Phase F (hardening) is in progress. Phase C's AI features have only been tested against mocked provider responses (no API key was available): see [AI integration](docs/AI_INTEGRATION.md).** See [Project status](#project-status) for exactly what works and what does not.
+> **Status: Phases A to E are built and tested. Phase F (hardening) is done: see docs/SECURITY.md. Phase C's AI features have only been tested against mocked provider responses (no API key was available): see [AI integration](docs/AI_INTEGRATION.md).** See [Project status](#project-status) for exactly what works and what does not.
 
 ## What works today
 
@@ -46,7 +46,7 @@ Navigation shows all 14 planned modules. Modules that are not built are **disabl
 | C | AI provider abstraction, AI recommendations, keyword intelligence, competitor analysis, content studio | ✅ Built; verified with mocked provider responses only (no real API call made). Not done: AI lead qualification, a usage-log screen, internal-linking suggestions |
 | D | Leads CRM, lead qualification, clients, proposals, onboarding, tasks | ✅ Done, with these gaps: qualification is rules-based (the AI variant waits for Phase C); no `client_projects` table (services are free text on the client); no tax lines, invoices or payment tracking; no email sending of any kind |
 | E | Content calendar, client reporting, notifications | ✅ Done. Not done: publishing to social platforms, GA4 / Search Console data, e-mail or push notifications, file uploads for media |
-| F | Hardening pass, extended docs (CRM, AI), deployment guide | ⚠️ Partially: security/testing docs exist for A+B only |
+| F | Hardening pass, extended docs (CRM, AI), deployment guide | ✅ Done as far as one developer can: see the review log in docs/SECURITY.md. Not done: independent security review, penetration test, PostgreSQL testing, colour-contrast check |
 
 Also not implemented: Lighthouse/Core Web Vitals, JavaScript-rendered crawling (Playwright), microdata/RDFa parsing (JSON-LD only), PostgreSQL testing (SQLite is what was run), background job queue (audits run in-process; they are marked failed if the server restarts), Google Analytics 4 / Search Console integrations, user management beyond the owner account (tasks can only be assigned to existing users, and only one exists until user management is built), password reset, org-configurable scoring weights (server env only).
 
@@ -55,7 +55,7 @@ Also not implemented: Lighthouse/Core Web Vitals, JavaScript-rendered crawling (
 - **Backend:** Python 3.12, FastAPI, SQLAlchemy 2, Alembic, Pydantic, httpx/httpcore, BeautifulSoup + lxml, PyJWT, argon2-cffi, ReportLab
 - **Frontend:** React 19, TypeScript, Vite, Tailwind CSS 4, TanStack Query, React Router, Recharts, Lucide
 - **Database:** SQLite by default (zero setup). PostgreSQL is supported by the models via `DATABASE_URL` but has not been tested yet.
-- **Tests:** pytest (117) and Vitest + Testing Library (56)
+- **Tests:** pytest (130) and Vitest + Testing Library (62)
 
 ## Prerequisites (Windows)
 
@@ -112,7 +112,7 @@ Details: [docs/TESTING.md](docs/TESTING.md).
 
 [Architecture](docs/ARCHITECTURE.md) · [SEO engine & scoring](docs/SEO_ENGINE.md) · [Security](docs/SECURITY.md) · [Database](docs/DATABASE_SCHEMA.md) · [API](docs/API_DOCUMENTATION.md) · [Testing](docs/TESTING.md) · [Deployment](docs/DEPLOYMENT.md)
 
-[CRM, proposals and onboarding](docs/CRM_DOCUMENTATION.md). [AI integration](docs/AI_INTEGRATION.md).
+[CRM, proposals and onboarding](docs/CRM_DOCUMENTATION.md). [AI integration](docs/AI_INTEGRATION.md). [Calendar, notifications, reports](docs/REPORTING.md).
 
 ## Troubleshooting
 
